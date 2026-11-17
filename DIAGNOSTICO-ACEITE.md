@@ -40,3 +40,8 @@ Não é necessário atualizar regras se a versão correspondente já foi publica
 - Firestore Emulator: 35 testes aprovados, incluindo confirmação após commit, gravação negada sem sucesso falso, falha na segunda rota sem reserva e GPS expirado com diagnóstico.
 - Navegador/Pages: leitura do cartão, GPS expirado, OSRM indisponível e gravação recusada; commit deliberadamente atrasado sem Maps/sucesso; listener do motorista silenciado e leitura seguinte atrasada, mas controles já trocados após a confirmação; snapshot antigo de cache ignorado; Maps automático e link manual; falha de leitura após commit mantém Aceita com aviso; painel do passageiro em Solicitada/Aceita/Embarcado e regressões de cancelamento/histórico.
 - Navegador usa SDK/serviços simulados. Testes de regras/transações usam servidor Emulator real. Não houve teste físico ou replay da corrida real `vPin18pd`.
+
+
+## Cache do Pages
+
+O build do site acrescenta `?v=<hash-do-conteúdo>` às importações dos dois módulos. Assim, o HTML novo não reutiliza uma API antiga do cache do celular. Os nomes dos quatro arquivos publicados continuam os mesmos. Depois da atualização, recarregar completamente ou abrir o link com parâmetro de versão para evitar também cache do HTML. O teste Pages executa o pacote com essas importações.

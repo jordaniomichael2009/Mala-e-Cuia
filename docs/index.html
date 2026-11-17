@@ -164,9 +164,9 @@ window.mcFirebaseReady=(async()=>{'use strict';
   const firestoreSDK=await import('https://www.gstatic.com/firebasejs/13.2.0/firebase-firestore.js');
   const {getFirestore,doc,getDoc,getDocFromServer,setDoc,onSnapshot,serverTimestamp}=firestoreSDK;
   const db=getFirestore(app);
-  const {createFirestoreClient,browserRouteKm}=await import('./firestore-client.js');
+  const {createFirestoreClient,browserRouteKm}=await import('./firestore-client.js?v=9cca2af6403c4dfc');
   window.mcFirestoreClient=createFirestoreClient({sdk:firestoreSDK,db,auth,routeKm:browserRouteKm});
-  const {createDriverSettings}=await import('./driver-settings.js');
+  const {createDriverSettings}=await import('./driver-settings.js?v=4b6c28f131a2b0f5');
   const settings=window.mcDriverSettings=createDriverSettings({
    readServer:async uid=>{const snap=await getDocFromServer(doc(db,'config_motoristas',uid));return snap.exists()?snap.data():null;},
    writeServer:data=>{if(settings.getState().uid!==auth.currentUser?.uid)throw Error('Conta alterada; recarregue a configuração.');return window.mcFirestoreClient.configureDriver(data);},
