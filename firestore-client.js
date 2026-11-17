@@ -45,7 +45,19 @@ export function createFirestoreClient({sdk,db,auth,routeKm}) {
   }
   tx.update(target,{status:d.next,updatedAt:serverTimestamp(),...(prepared?{estimate:prepared}:{})});return {status:d.next};
  });}
- return {configureDriver,requestRide,rideStep};
+ async function cancelRide(d){const u=uid(),target=ref('corridas_teste',d.rideId);
+ return runTransaction(db,async tx=>{const snap=await tx.get(target);if(!exists(snap))fail('not-found','Corrida não encontrada.');const ride=snap.data();
+ if(ride.schemaVersion!==2)fail('failed-precondition','Corrida antiga: somente consulta.');
+ const passenger=ride.passengerId===u,driver=ride.driverId===u;
+ if(!passenger&&!driver)fail('permission-denied','Você não participa desta corrida.');
+ if(!['solicitada','aceita'].includes(ride.status)||(driver&&ride.status!=='aceita'))fail('failed-precondition','Não é possível cancelar nesta etapa.');
+ const released=ride.status==='aceita';
+ // The passenger need not read the driver's private reservation. Rules validate its exact ID.
+ if(released){tx.delete(ref('motoristas_ativos',ride.driverId));tx.set(ref('disponibilidades',ride.driverId),{disponivel:true,atualizadoEm:serverTimestamp()});}
+ tx.update(target,{status:'cancelada',updatedAt:serverTimestamp(),cancellation:{by:u,role:passenger?'passageiro':'motorista',at:serverTimestamp()}});
+ return {status:'cancelada',released};});}
+ async function cancellationSupported(){uid();try{await sdk.getDocFromServer(ref('system_capabilities','cancellation-v1'));return true;}catch{return false;}}
+ return {configureDriver,requestRide,rideStep,cancelRide,cancellationSupported};
 }
 
 export async function browserRouteKm(a,b){if(a.lat===b.lat&&a.lng===b.lng)return 0;

@@ -34,3 +34,6 @@ O marcador não migra nem resolve corridas antigas. O teste de bloqueio de migra
 ## Evidência
 
 `tests/emulator.test.cjs` contém seis casos adicionais de compatibilidade: perfil antigo, disponibilidade antiga, configuração UUID, pedidos antigos de três variantes, histórico/reserva antigos e o bloqueio de migração por corrida ativa sem reserva. Passaram no Emulator local. Não substituem um inventário do Firebase real.
+
+
+O cancelamento desta entrega é aditivo para registros schemaVersion 2. Não desbloqueia cancelamento ou liberação de corridas antigas sem marcador. As regras novas aceitam o cliente Pages anterior; não é preciso migrar registros schemaVersion 2 para adicionar o mapa cancellation, que só é inserido em um cancelamento válido. A rotina não exclui corridas.

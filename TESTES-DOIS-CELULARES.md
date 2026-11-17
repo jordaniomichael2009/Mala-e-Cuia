@@ -60,3 +60,18 @@ A estimativa vem dos três trajetos calculados no celular do motorista. Regras c
 - Ler registros antigos deve mostrá-los como somente consulta; não tentar operar corridas históricas para “liberar” reserva.
 - Aprovação física exige persistência nos dois aparelhos, reserva única, liberação completa, sincronia sem perda e ausência de erros inesperados. Registrar esperado/obtido por passo.
 - Cancelamento/recuperação administrativa, rastreamento contínuo, catálogo e despacho automático continuam ausentes. Corrida abandonada exige tratamento administrativo planejado e autorizado.
+
+## Novo teste de cancelamento — antes do embarque
+
+Pré-requisito: conferir `ATUALIZACAO-CANCELAMENTO.md` e aplicar as regras novas pelo console quando autorizado. Sem as regras, Cancelar aparece desabilitado; recarregar após a atualização. A corrida deve ter schemaVersion 2.
+
+1. A (P) envia um pedido. No topo deve aparecer Solicitação em andamento. Em B (M), antes do aceite há Recusar e não Cancelar.
+2. A toca Cancelar e desiste na confirmação: nada deve mudar. Toca novamente e confirma: status Cancelada nos dois aparelhos, com papel, UID e horário. Sem reserva criada. Histórico deve registrar o cancelamento.
+3. Novo pedido: B aceita. Resumo Corrida ativa no topo e cartão destacado antes do histórico. A confirma Cancelar: corrida cancelada, reserva removida e B disponível. Verificar registro no histórico dos dois.
+4. Novo pedido aceito: B confirma Cancelar antes de embarcar. Mesmo resultado, com autoria motorista. Não apagar o documento da corrida.
+5. Novo pedido aceito: B confirma embarque. Cancelar deve sumir nos dois. Tentativas diretas de cancelar essa etapa já são negadas no Emulator; finalizar normalmente.
+6. Disputa aceitar/cancelar: repetir em A e B quase simultaneamente. Um aceite pode acontecer antes do cancelamento; o estado final precisa estar coerente. Cancelada não pode manter reserva. Aceita/embarcada precisa manter a reserva correspondente.
+7. Disputa embarcar/cancelar: depois do aceite, B toca Embarque enquanto A confirma Cancelar. Só uma operação pode vencer. Se embarcou, cancelamento falha e reserva permanece; se cancelou, embarque falha e reserva desaparece.
+8. Os botões ficam bloqueados enquanto uma operação aguarda resposta. Conferir que recarregar não repete cancelamento ou muda o autor. Cancelar novamente, reabrir concluída ou alterar corrida alheia deve falhar.
+
+Nenhum dos passos físicos foi executado nesta sessão. Os testes de regras e disputas foram executados apenas no Emulator; os de confirmação/destaque/histórico usaram navegador com mocks.

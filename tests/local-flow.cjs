@@ -24,11 +24,11 @@ export const signInWithEmailAndPassword=()=>{};export const createUserWithEmailA
 `;
 async function deliver(l){const data=l.ref.filter?[...store].filter(([path,d])=>path.startsWith(l.ref.path+'/')&&d[l.ref.filter.field]===l.ref.filter.value):store.get(l.ref.path)||null;await l.page.evaluate(({id,data})=>window.deliver(id,data),{id:l.id,data});}
 async function write(path,data){store.set(path,data);for(const l of listeners)await deliver(l);}
-async function createPage(uid,{stale=false}={}){
+async function createPage(uid,{stale=false,cancellationAvailable=true}={}){
  const context=await browser.newContext({viewport:{width:390,height:844},geolocation:{latitude:-7.55,longitude:-38.5},permissions:['geolocation']});
  const page=await context.newPage();pages.push(page);const errors=[];page.on('pageerror',e=>errors.push(e.message));page.testErrors=errors;
  await page.exposeBinding('commitTransaction',async(_,writes)=>{for(const w of writes){if(w.op==='delete')store.delete(w.path);else store.set(w.path,w.op==='set'?w.data:{...store.get(w.path),...w.data});}for(const l of [...listeners])await deliver(l);});
- await page.exposeBinding('readDoc',(_,path)=>store.get(path)||null);
+ await page.exposeBinding('readDoc',(_,path)=>{if(path==='system_capabilities/cancellation-v1'&&!cancellationAvailable)throw Error('permission-denied');return store.get(path)||null;});
  await page.exposeBinding('writeDoc',(_,path,data)=>write(path,data));
  await page.exposeBinding('subscribe',async(_,id,ref)=>{const l={page,id,ref};listeners.push(l);await deliver(l)});
  await page.addInitScript(({uid,stale})=>{window.testUser={uid,email:uid+'@example.test'};window.subs={};window.subId=0;if(stale){localStorage.setItem('mc_demo_empty_rate','99');localStorage.setItem('mc_demo_occupied_rate','98');localStorage.setItem('mc_demo_base',JSON.stringify({lat:1,lng:2}));}},{uid,stale});
@@ -59,10 +59,26 @@ await passenger.fill('#rideTargetUid','driver');await passenger.fill('#ridePicku
 // Avoid navigating the test page away; exercise the transaction while recording Maps URL.
 await driver.route('https://www.google.com/**',route=>route.fulfill({status:204}));
 await driver.getByRole('button',{name:'✅ Aceitar e abrir Maps até o passageiro'}).click();await passenger.waitForFunction(()=>document.querySelector('#rideOutgoing').textContent.includes('Motorista aceitou'));
+assert(await driver.locator('#activeRidePanel').isVisible());assert.equal(await driver.locator('#activeRideTitle').textContent(),'Corrida ativa');assert.equal(await driver.locator('#rideIncoming [data-state]').first().getAttribute('data-state'),'aceita');assert.equal(await passenger.getByRole('button',{name:'Cancelar corrida',exact:true}).count(),1);
 await driver.getByRole('button',{name:'👤 Confirmar embarque',exact:true}).click();await passenger.waitForFunction(()=>document.querySelector('#rideOutgoing').textContent.includes('Em viagem.'));
+assert.equal(await passenger.getByRole('button',{name:'Cancelar corrida',exact:true}).count(),0);assert.equal(await driver.getByRole('button',{name:'Cancelar corrida',exact:true}).count(),0);
 await driver.getByRole('button',{name:'🏁 Finalizar corrida'}).click();await passenger.waitForFunction(()=>document.querySelector('#rideOutgoing').textContent.includes('Viagem encerrada.'));
 for(const page of pages){assert.deepEqual(page.testErrors,[]);assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));}
 assert.equal([...store.values()].filter(d=>d.status==='concluida').length,1);assert.equal(store.has('motoristas_ativos/driver'),false);assert.equal(store.get('disponibilidades/driver').disponivel,true);assert.equal([...store.values()].find(d=>d.status==='concluida').estimate.totalCents,3700);await passenger.click('[data-view="trips"]');assert(await passenger.locator('#tripHistory').textContent().then(t=>t.includes('Concluída')));
-console.log('PASS: three isolated mobile sessions; account/panel rates unified; server restoration ignores stale browser values; stale save rejected; GPS/search and direct Firestore ride lifecycle; client-side distance estimate; no external services accessed.');
+await passenger.click('[data-view="home"]');
+const currentPending=()=>[...store.entries()].find(([key,d])=>key.startsWith('corridas_teste/')&&d.status==='solicitada');
+async function send(){await passenger.click('#rideSend');await driver.getByRole('button',{name:'✅ Aceitar e abrir Maps até o passageiro'}).waitFor();return currentPending()[0].split('/').pop();}
+async function confirmedCancel(page){page.once('dialog',async dialog=>{assert.equal(dialog.type(),'confirm');await dialog.accept();});await page.getByRole('button',{name:'Cancelar corrida',exact:true}).click();}
+let waiting=await send();assert.equal(await driver.getByRole('button',{name:'Cancelar corrida',exact:true}).count(),0);assert(await driver.getByRole('button',{name:'Recusar solicitação'}).isVisible());
+passenger.once('dialog',dialog=>dialog.dismiss());await passenger.getByRole('button',{name:'Cancelar corrida',exact:true}).click();assert.equal(store.get('corridas_teste/'+waiting).status,'solicitada');
+await confirmedCancel(passenger);await driver.waitForFunction(()=>document.querySelector('#rideIncoming').textContent.includes('Cancelada por passageiro'));assert.equal(store.get('corridas_teste/'+waiting).cancellation.by,'passenger');assert.equal(store.has('motoristas_ativos/driver'),false);
+for(const actor of [passenger,driver]){const id=await send();await driver.getByRole('button',{name:'✅ Aceitar e abrir Maps até o passageiro'}).click();await driver.getByRole('button',{name:'Cancelar corrida',exact:true}).waitFor();await confirmedCancel(actor);await passenger.waitForFunction(id=>document.querySelector('[data-ride-id="'+id+'"]')?.dataset.state==='cancelada',id);const result=store.get('corridas_teste/'+id);assert.equal(result.cancellation.by,actor===driver?'driver':'passenger');assert(result.cancellation.at.__timestamp);assert.equal(store.has('motoristas_ativos/driver'),false);assert.equal(store.get('disponibilidades/driver').disponivel,true);}
+await passenger.click('[data-view="trips"]');assert((await passenger.locator('#tripHistory').textContent()).includes('Cancelada por motorista'));assert((await passenger.locator('#tripHistory').textContent()).includes('Cancelada por passageiro'));
+assert(!(await passenger.locator('#activeRidePanel').isVisible()));
+await passenger.click('[data-view="home"]');waiting=await send();
+const beforeUpgrade=await createPage('passenger',{cancellationAvailable:false});await beforeUpgrade.waitForFunction(()=>document.querySelector('#cancellationStatus').textContent.includes('indisponível'));assert(await beforeUpgrade.getByRole('button',{name:'Cancelar corrida',exact:true}).isDisabled());
+await confirmedCancel(passenger);await beforeUpgrade.waitForFunction(id=>document.querySelector('[data-ride-id="'+id+'"]')?.dataset.state==='cancelada',waiting);
+for(const page of pages){assert.deepEqual(page.testErrors,[]);assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));}
+console.log('PASS: mobile lifecycle and synchronization; active ride spotlight/order; cancellation confirmation/dismissal; passenger waiting/accepted and driver accepted cancellation; audit/history seen by both participants; old-rule feature gate; no external services.');
 await browser.close();
 })().catch(e=>{console.error(e);process.exit(1)});

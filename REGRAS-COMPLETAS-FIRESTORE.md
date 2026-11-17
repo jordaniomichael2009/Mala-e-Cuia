@@ -1,10 +1,10 @@
-# Regras completas — proposta para revisão
+# Regras completas — cancelamento antes do embarque
 
-Correspondem ao cliente `schemaVersion: 2` desta revisão local na branch `teste-sem-blaze`. Não foram aplicadas. Substituem a proposta anterior apenas para este fluxo e exigem o plano de compatibilidade antes de qualquer uso real.
+Projeto de destino autorizado: mobilidademalaecuia. Não aplicadas automaticamente nesta sessão por ausência de autenticação Firebase. Compatíveis com o cliente anterior schemaVersion 2; seguir ATUALIZACAO-CANCELAMENTO.md para a sequência e o console. Não criar documento de capacidade.
 
-SHA-256 do arquivo `firestore.rules`: `be2881d482baf987bc4074f4d5dc7afa59b871ca08b5fc086b6b1cad5337cb98`.
+SHA-256 de firestore.rules: `20e6c767fe1de2110eac228de347b400a3a95e48a9532d6906d592cd403c8175`.
 
-As regras são públicas por natureza; publicar seu texto no Pages não as aplica. Distâncias são estimativas do cliente, não verificadas por servidor.
+Distâncias continuam sendo estimativas do cliente, não verificadas por servidor.
 
 ```text
 rules_version = '2';
@@ -31,6 +31,30 @@ service cloud.firestore {
     && get(/databases/$(database)/documents/corridas_teste/$(id)).data.status == 'embarcado'
     && getAfter(/databases/$(database)/documents/corridas_teste/$(id)).data.status == 'concluida'
     && getAfter(/databases/$(database)/documents/corridas_teste/$(id)).data.driverId == u;
+  }
+  function validCancellation(after,before) {
+   return signed() && after.cancellation is map
+    && after.cancellation.keys().hasOnly(['by','role','at'])
+    && after.cancellation.by == request.auth.uid && after.cancellation.at == request.time
+    && ((request.auth.uid == before.passengerId && after.cancellation.role == 'passageiro')
+     || (request.auth.uid == before.driverId && after.cancellation.role == 'motorista'));
+  }
+  function pairedCancel(u,id) {
+   let before = get(/databases/$(database)/documents/corridas_teste/$(id)).data;
+   let after = getAfter(/databases/$(database)/documents/corridas_teste/$(id)).data;
+   return before.get('schemaVersion',0) == 2 && before.driverId == u && before.status == 'aceita'
+    && after.status == 'cancelada' && validCancellation(after,before)
+    && get(/databases/$(database)/documents/motoristas_ativos/$(u)).data.rideId == id
+    && !existsAfter(/databases/$(database)/documents/motoristas_ativos/$(u));
+  }
+  function cancelUpdate(before,after,id) {
+   return before.get('schemaVersion',0) == 2 && after.status == 'cancelada'
+    && after.diff(before).affectedKeys().hasOnly(['status','updatedAt','cancellation'])
+    && after.updatedAt == request.time && validCancellation(after,before)
+    && ((before.status == 'solicitada' && request.auth.uid == before.passengerId)
+     || (before.status == 'aceita' && pairedCancel(before.driverId,id)
+      && availabilityAfter(before.driverId,true)
+      && getAfter(/databases/$(database)/documents/disponibilidades/$(before.driverId)).data.atualizadoEm == request.time));
   }
   function validConfig(c) {
    return c.keys().hasOnly(['base','vehicle','emptyRateCents','occupiedRateCents','version','updatedAt','position','positionAt'])
@@ -72,13 +96,15 @@ service cloud.firestore {
   }
   match /disponibilidades/{u} {
    allow read: if own(u);
-   allow create, update: if own(u) && role(u,'motorista')
+   allow create, update: if signed()
     && request.resource.data.keys().hasOnly(['disponivel','atualizadoEm'])
     && request.resource.data.keys().hasAll(['disponivel','atualizadoEm'])
     && request.resource.data.disponivel is bool && request.resource.data.atualizadoEm == request.time
-    && (free(u)
-     || (request.resource.data.disponivel == false && pairedAccept(u,getAfter(/databases/$(database)/documents/motoristas_ativos/$(u)).data.rideId))
-     || (request.resource.data.disponivel == true && pairedFinish(u,get(/databases/$(database)/documents/motoristas_ativos/$(u)).data.rideId)));
+    && ((own(u) && role(u,'motorista') && (free(u)
+      || (request.resource.data.disponivel == false && pairedAccept(u,getAfter(/databases/$(database)/documents/motoristas_ativos/$(u)).data.rideId))
+      || (request.resource.data.disponivel == true && pairedFinish(u,get(/databases/$(database)/documents/motoristas_ativos/$(u)).data.rideId))))
+     || (request.resource.data.disponivel == true
+      && pairedCancel(u,get(/databases/$(database)/documents/motoristas_ativos/$(u)).data.rideId)));
   }
   match /corridas_teste/{id} {
    allow read: if signed() && (resource.data.passengerId == request.auth.uid || resource.data.driverId == request.auth.uid);
@@ -95,6 +121,7 @@ service cloud.firestore {
     && request.resource.data.pickupLabel is string && request.resource.data.pickupLabel.size() >= 3 && request.resource.data.pickupLabel.size() <= 120
     && request.resource.data.destinationLabel is string && request.resource.data.destinationLabel.size() >= 3 && request.resource.data.destinationLabel.size() <= 120
     && request.resource.data.createdAt == request.time && request.resource.data.updatedAt == request.time;
+   allow update: if cancelUpdate(resource.data,request.resource.data,id);
    allow update: if own(resource.data.driverId) && role(resource.data.driverId,'motorista')
     && resource.data.get('schemaVersion',0) == 2
     && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','updatedAt','estimate'])
@@ -116,8 +143,11 @@ service cloud.firestore {
    allow create: if own(u) && role(u,'motorista') && request.resource.data.keys().hasOnly(['rideId','updatedAt'])
     && request.resource.data.rideId is string && request.resource.data.updatedAt == request.time
     && pairedAccept(u,request.resource.data.rideId) && availabilityAfter(u,false);
-   allow delete: if own(u) && role(u,'motorista') && pairedFinish(u,resource.data.rideId) && availabilityAfter(u,true);
+   allow delete: if signed() && availabilityAfter(u,true)
+    && ((own(u) && role(u,'motorista') && pairedFinish(u,resource.data.rideId)) || pairedCancel(u,resource.data.rideId));
   }
+  // Read-only permission probe; no document creation is required for feature detection.
+  match /system_capabilities/{id} { allow get: if signed() && id == 'cancellation-v1'; }
   match /{document=**} { allow read, write: if false; }
  }
 }

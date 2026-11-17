@@ -43,3 +43,8 @@ Nenhuma configuração do Pages ou regra foi alterada. Não executar push, troca
 ## Limite do preço
 
 O celular do motorista calcula `GPS → embarque`, `embarque → destino` e `destino → base`. As regras validam tarifas, fórmula e limites numéricos, **não a veracidade das distâncias ou GPS**. Estimativa aparece ao passageiro após o aceite; não há aprovação prévia do valor pelo passageiro, pagamento ou cobrança. Não usar como preço garantido.
+
+
+## Atualização de cancelamento
+
+O Pages já usa `teste-sem-blaze /docs`; push nessa branch publica a UI. Não alterar a fonte ou a main. O cancelamento acrescenta regras compatíveis com o cliente anterior. Ver `ATUALIZACAO-CANCELAMENTO.md`: ordem preferencial regras primeiro; sem autenticação Firebase, entregar o arquivo exato para aplicação manual e publicar UI com sondagem de compatibilidade. Nenhum documento de capacidade precisa ser criado. Não mudar plano, excluir registros ou usar Functions.

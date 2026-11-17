@@ -1,12 +1,12 @@
 {
   "branch": "teste-sem-blaze",
   "source": "/docs",
-  "mode": "review-only-not-published",
+  "mode": "pages-payload-cancellation-v1",
   "files": [
     {
       "path": "docs/index.html",
-      "bytes": 61029,
-      "sha256": "7eea08d20676828a6249287f316996b98fbccc42ba2a83d80b19722284e29146"
+      "bytes": 65031,
+      "sha256": "a3c668716fc594ac29278c53cf806582a35d68d62ae94a19b8bb38ee783e401c"
     },
     {
       "path": "docs/driver-settings.js",
@@ -15,8 +15,8 @@
     },
     {
       "path": "docs/firestore-client.js",
-      "bytes": 5957,
-      "sha256": "bb0dde4b5b1d5097a678245d5258c765ee2a2b299930a1e1f67c75e49f688681"
+      "bytes": 7276,
+      "sha256": "b2f52159419723dc00a521de074714f1584164d3451f24d6a42c4f31d5735cba"
     },
     {
       "path": "docs/.nojekyll",

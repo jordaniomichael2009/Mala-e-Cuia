@@ -1,6 +1,6 @@
 # Mala e Cuia 3.0 — revisão Spark, sem Cloud Functions
 
-Revisão preparada para a branch `teste-sem-blaze`. Não houve merge, publicação no Pages, deploy ou modificação no Firebase real nesta adaptação.
+Interface mantida na branch `teste-sem-blaze`, que alimenta o Pages por `/docs`. O push autorizado publica apenas a interface; a main permanece separada. As regras do Firestore precisam de aplicação independente. Sem Cloud Functions ou ativação de Blaze.
 
 Usa Firebase Authentication (E-mail/Senha), Firestore com transações do SDK cliente e regras de segurança. Não requer Cloud Functions ou Blaze para este fluxo de teste dentro das cotas do plano Spark. CSS original preservado.
 
@@ -39,3 +39,8 @@ O navegador usa Chromium do sistema ou o instalado com `npx playwright install c
 ## Preparação atual do Pages
 
 Ler `PUBLICACAO-PAGES-REVISAO.md`, `COMPATIBILIDADE-LEGADOS.md` e `REGRAS-COMPLETAS-FIRESTORE.md`. `npm run prepare:pages` gera somente quatro arquivos em `docs/` e um manifesto na raiz. Fonte proposta para eventual publicação: `teste-sem-blaze /docs`; não foi configurada. `npm run test:pages` testa esse pacote no subdiretório `/Mala-e-Cuia/` com a rede simulada. Corridas novas têm `schemaVersion: 2`; antigas são somente consulta. A migração de contas com corridas antigas ativas é bloqueio antes de reutilizá-las.
+
+
+## Corrida ativa e cancelamento
+
+A corrida ativa aparece em destaque e antes do histórico. Passageiro cancela esperando ou após aceite; motorista cancela após aceite, sempre antes do embarque e com confirmação. Autoria e horário ficam no documento e no histórico; uma reserva existente é liberada na mesma transação. Ver `ATUALIZACAO-CANCELAMENTO.md` para aplicação das regras pelo console e sequência compatível de atualização. Sem as regras correspondentes, a interface mantém Cancelar desabilitado; não precisa criar documento de configuração.

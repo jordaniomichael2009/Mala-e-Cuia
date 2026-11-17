@@ -1,12 +1,12 @@
-# Preparação do GitHub Pages — revisão, NÃO PUBLICAR
+# GitHub Pages — referência do pacote e atualização autorizada
 
 ## Fonte proposta
 
 Branch: `teste-sem-blaze`. Pasta de publicação: **`/docs`**. A `main` não deve receber commits, merge ou arquivos desta revisão. Nenhuma configuração do Pages foi alterada.
 
-A configuração conhecida do Pages ainda é `main /`; somente após autorização, ela poderia ser trocada para `teste-sem-blaze /docs`. Essa troca substituiria o conteúdo do endereço público existente; não cria uma prévia independente. Não fazer a troca agora e não habilitar workflow de deploy.
+A configuração foi conferida nesta tarefa: `teste-sem-blaze /docs`. O push autorizado nesta branch atualiza o site público existente. Não mudar a fonte, não habilitar outro workflow e não alterar a main. A aplicação das regras é separada e está descrita em `ATUALIZACAO-CANCELAMENTO.md`.
 
-Endereço esperado após eventual aprovação: `https://jordaniomichael2009.github.io/Mala-e-Cuia/`. Até essa troca, esse endereço continua representando a publicação anterior da main.
+Endereço esperado após eventual aprovação: `https://jordaniomichael2009.github.io/Mala-e-Cuia/`. Esse endereço já representa a branch de teste; não é uma prévia independente da publicação atual.
 
 ## Lista EXATA do conteúdo estático necessário
 
@@ -48,3 +48,6 @@ As importações `./driver-settings.js` e `./firestore-client.js` são relativas
 ## Teste físico e preço
 
 Seguir `TESTES-DOIS-CELULARES.md`, com dois aparelhos e duas contas novas. A estimativa surge no aceite; o motorista consulta as três rotas. Tarifas e fórmula são validadas nas regras, mas as distâncias/GPS do cliente não são verificados por servidor. Não é cotação garantida ou pagamento.
+
+
+Atualização de cancelamento: publicar a UI foi autorizado após os testes. A ordem ideal é regras novas primeiro e interface depois; sem autenticação Firebase disponível, a interface usa a sondagem de compatibilidade e mantém Cancelar desabilitado sob as regras antigas. Não criar documento de capacidade nem alterar dados para habilitar o recurso.

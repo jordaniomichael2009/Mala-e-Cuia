@@ -13,7 +13,7 @@ Todos os itens permanecem parciais como entrega operacional, pois não houve tes
 | 7 | Aceitar/recusar | SDK cliente + regras reservam motorista; concorrência e lotes maliciosos testados | Validação física/produção |
 | 8 | Maps até embarque | Link só após sucesso da transação | Maps nativo em aparelho |
 | 9 | Embarque/Maps destino | Etapa nas regras e link | Maps nativo em aparelho |
-| 10 | Conclusão/liberação | Transação pareada, exclusão de reserva e disponibilidade; testes de tentativa incompleta | Físicos; cancelamento/recuperação administrativa |
+| 10 | Conclusão/liberação | Transação pareada, exclusão de reserva e disponibilidade; testes de tentativa incompleta | Físicos; recuperação administrativa de legados |
 | 11 | Histórico | Lista básica de concluídas/recusadas | Filtros/paginação/ganhos e teste físico |
 | 12 | Duas tarifas/três trajetos | **Estimativa do cliente**, tarifas/fórmula/versão validadas nas regras no aceite | Distâncias/GPS verificados por servidor **não implementados**; aprovação do preço pelo passageiro/pagamento não implementados |
 
@@ -23,3 +23,6 @@ Nenhuma regra antiga foi aplicada. Esta adaptação é destinada somente à bran
 
 
 Preparação Pages local: pacote mínimo em `docs/`, manifesto e regras completas para revisão. Há seis testes novos de compatibilidade. Atualizações de corridas exigem `schemaVersion: 2`; pedidos antigos não são migrados. A garantia de reserva única vale para o fluxo novo, não substitui inventário/tratamento de corridas antigas ativas sem reserva. Não reutilizar contas nessas condições. Teste físico com duas contas novas continua pendente.
+
+
+Cancelamento antes do embarque agora está implementado para os dois participantes com confirmação, auditoria e liberação transacional. Canceladas entram no histórico. Destaque de corrida ativa implementado. Testes incluem aceitar/cancelar, embarcar/cancelar e dois cancelamentos. O cancelamento de legados sem schemaVersion continua bloqueado; recuperação administrativa, cancelamento após embarque e teste físico permanecem pendentes. Regras não aplicadas automaticamente nesta sessão, por ausência de autenticação Firebase.
