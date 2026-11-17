@@ -1,0 +1,33 @@
+rules_version = '2';
+service cloud.firestore {
+ match /databases/{database}/documents {
+  function own(uid) { return request.auth != null && request.auth.uid == uid; }
+  match /perfis/{uid} {
+   allow read: if own(uid);
+   allow create, update: if own(uid)
+    && request.resource.data.keys().hasOnly(['nome','tipo','veiculo','atualizadoEm'])
+    && request.resource.data.keys().hasAll(['nome','tipo','veiculo','atualizadoEm'])
+    && request.resource.data.nome is string && request.resource.data.nome.size() >= 2 && request.resource.data.nome.size() <= 70
+    && request.resource.data.tipo in ['passageiro','motorista']
+    && request.resource.data.veiculo in ['','carro','moto','frete']
+    && request.resource.data.atualizadoEm == request.time
+    && !exists(/databases/$(database)/documents/motoristas_ativos/$(uid));
+  }
+  match /disponibilidades/{uid} {
+   allow read: if own(uid);
+   allow create, update: if own(uid)
+    && get(/databases/$(database)/documents/perfis/$(uid)).data.tipo == 'motorista'
+    && !exists(/databases/$(database)/documents/motoristas_ativos/$(uid))
+    && request.resource.data.keys().hasOnly(['disponivel','atualizadoEm'])
+    && request.resource.data.keys().hasAll(['disponivel','atualizadoEm'])
+    && request.resource.data.disponivel is bool && request.resource.data.atualizadoEm == request.time;
+  }
+  match /corridas_teste/{id} {
+   allow read: if request.auth != null && (resource.data.passengerId == request.auth.uid || resource.data.driverId == request.auth.uid);
+   allow write: if false; // Only authenticated callable functions using Admin SDK.
+  }
+  match /config_motoristas/{uid} { allow read: if own(uid); allow write: if false; }
+  match /motoristas_ativos/{uid} { allow read: if own(uid); allow write: if false; }
+  match /{document=**} { allow read, write: if false; }
+ }
+}

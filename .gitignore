@@ -1,0 +1,6 @@
+node_modules/
+.firebase/
+*-debug.log
+web-dist/
+.emulator-cache/
+.firebase-cli-config/
