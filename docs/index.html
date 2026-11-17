@@ -41,7 +41,7 @@
 <label class="small" for="ridePickupText">Referência do embarque</label><input class="input" id="ridePickupText" placeholder="Ex.: Praça central">
 <label class="small" for="rideDestinationText">Referência do destino</label><input class="input" id="rideDestinationText" placeholder="Ex.: Hospital municipal">
 <p class="fare-help">Confirme o GPS do passageiro e selecione o destino pela busca na aba Passageiro antes de enviar. As coordenadas serão gravadas na corrida de teste. Antes de testar, confirme que as regras restringem o acesso às duas contas participantes.</p>
-<button class="primary" type="button" id="rideSend">🚗 Enviar solicitação ao motorista</button>
+<p id="ridePassengerRequestState" class="status" role="status" aria-live="polite"></p><p id="ridePassengerError" class="status auth-error" role="alert" hidden></p><button class="primary" type="button" id="rideSend" disabled>🚗 Enviar solicitação ao motorista</button>
 </div>
 <div id="rideDriverPanel" class="card" style="background:#fafafa">
 <h3 class="section-title">🚘 Chamados recebidos</h3><p class="fare-help">O motorista precisa ter perfil Motorista e estar disponível no Firebase. A tela atualiza em tempo real.</p>
@@ -164,7 +164,7 @@ window.mcFirebaseReady=(async()=>{'use strict';
   const firestoreSDK=await import('https://www.gstatic.com/firebasejs/13.2.0/firebase-firestore.js');
   const {getFirestore,doc,getDoc,getDocFromServer,setDoc,onSnapshot,serverTimestamp}=firestoreSDK;
   const db=getFirestore(app);
-  const {createFirestoreClient,browserRouteKm}=await import('./firestore-client.js?v=9cca2af6403c4dfc');
+  const {createFirestoreClient,browserRouteKm}=await import('./firestore-client.js?v=7f6501a70c697aa0');
   window.mcFirestoreClient=createFirestoreClient({sdk:firestoreSDK,db,auth,routeKm:browserRouteKm});
   const {createDriverSettings}=await import('./driver-settings.js?v=4b6c28f131a2b0f5');
   const settings=window.mcDriverSettings=createDriverSettings({
@@ -227,7 +227,7 @@ window.mcFirebaseReady=(async()=>{'use strict';
     if(nome.length<2||nome.length>70){profileStatus('Informe um nome de 2 a 70 caracteres.',true);return}
     const data={nome,tipo,veiculo:tipo==='motorista'?el('profileVehicle').value:'',atualizadoEm:serverTimestamp()};
     el('saveProfileBtn').disabled=true;profileStatus('Salvando perfil...');
-    try{await setDoc(doc(db,'perfis',user.uid),data);if(tipo==='motorista'&&settings.getState().dirty){try{await settings.save({vehicle:data.veiculo});}catch(e){profileStatus('Perfil salvo; configuração não salva: '+e.message,true);return}}profileStatus('✓ Perfil e configuração salva recuperáveis pela conta.');}
+    try{await window.mcFirestoreClient.saveProfile(data);if(tipo==='motorista'&&settings.getState().dirty){try{await settings.save({vehicle:data.veiculo});}catch(e){profileStatus('Perfil salvo; configuração não salva: '+e.message,true);return}}profileStatus('✓ Perfil e configuração salva recuperáveis pela conta.');}
     catch(err){profileStatus('Falha ao salvar. Verifique as regras publicadas. '+(err.code||''),true)}
     finally{el('saveProfileBtn').disabled=false}
   });
@@ -268,15 +268,15 @@ const $=id=>document.getElementById(id),say=t=>{$('rideFeedback').textContent=t}
 try{
 const {getApp}=await import('https://www.gstatic.com/firebasejs/13.2.0/firebase-app.js');
 const {getAuth,onAuthStateChanged}=await import('https://www.gstatic.com/firebasejs/13.2.0/firebase-auth.js');
-const {getFirestore,collection,doc,getDoc,getDocFromServer,query,where,onSnapshot}=await import('https://www.gstatic.com/firebasejs/13.2.0/firebase-firestore.js');
+const {getFirestore,collection,doc,getDoc,getDocFromServer,getDocsFromServer,query,where,onSnapshot}=await import('https://www.gstatic.com/firebasejs/13.2.0/firebase-firestore.js');
 // Compartilha a inicialização, sem limite artificial de seis segundos.
 const app=await window.mcFirebaseReady;
 if(!app)throw Error('Firebase não inicializado');
 const call=(name,data)=>window.mcFirestoreClient[name](data);
-const auth=getAuth(app),db=getFirestore(app);let user=null,profile=null,unsubs=[],profileUnsub=null,session=0;const pending=new Set();let cancellationReady=false,lastRows=[],driverMode=false;const operationMessages=new Map(),confirmedOverrides=new Map();
+const auth=getAuth(app),db=getFirestore(app);let user=null,profile=null,unsubs=[],profileUnsub=null,session=0;const pending=new Set();let cancellationReady=false,lastRows=[],driverMode=false;let passengerRegistryUnsub=null,passengerRegistry=null,registryLoaded=false,rowsLoaded=false,passengerRulesReady=false,passengerSending=false,knownPassengerRide=null,passengerError='';const operationMessages=new Map(),confirmedOverrides=new Map();
 const safeCoords=c=>c&&Number.isFinite(+c.lat)&&Number.isFinite(+(c.lng))&&Math.abs(+c.lat)<=90&&Math.abs(+c.lng)<=180?{lat:+c.lat,lng:+c.lng}:null;
 const statusNames={solicitada:'Solicitada',aceita:'Aceita',embarcado:'Passageiro embarcado',concluida:'Concluída',recusada:'Recusada',cancelada:'Cancelada',sincronizando:'Aguardando confirmação'};
-function clear(){unsubs.forEach(f=>f());unsubs=[];$('rideIncoming').replaceChildren();$('rideOutgoing').replaceChildren();$('tripHistory').replaceChildren();lastRows=[];$('activeRidePanel').classList.add('hidden')}
+function clear(){unsubs.forEach(f=>f());unsubs=[];$('rideIncoming').replaceChildren();$('rideOutgoing').replaceChildren();$('tripHistory').replaceChildren();lastRows=[];rowsLoaded=false;$('activeRidePanel').classList.add('hidden')}
 function mapUrl(coords){return 'https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(coords.lat+','+coords.lng)+'&travelmode=driving&dir_action=navigate'}
 function button(parent,label,fn){const b=document.createElement('button');b.type='button';b.className='secondary';b.style.margin='6px 5px 4px 0';b.textContent=label;b.onclick=fn;b.disabled=pending.has(parent.dataset.rideId);parent.append(b);return b}
 function busyButtons(id){document.querySelectorAll('[data-ride-id="'+CSS.escape(id)+'"] button').forEach(b=>b.disabled=pending.has(id)||(b.dataset.cancelAction==='true'&&!cancellationReady));}
@@ -310,44 +310,72 @@ try{const result=await call('cancelRide',{rideId:ride.id});operation(ride.id,res
 catch(e){say('Não foi possível cancelar: '+(e.message||e.code));}finally{pending.delete(ride.id);busyButtons(ride.id)}}
 const rank=s=>({embarcado:0,aceita:1,solicitada:2}[s]??3);
 function ordered(items){return [...items].sort((a,b)=>rank(a.status)-rank(b.status)||(b.updatedAt?.toMillis?.()||0)-(a.updatedAt?.toMillis?.()||0)||a.id.localeCompare(b.id));}
-function spotlight(items){const current=ordered(items).find(r=>r.schemaVersion===2&&['solicitada','aceita','embarcado'].includes(r.status));$('activeRidePanel').classList.toggle('hidden',!current);if(!current)return;
+function spotlight(items){const current=ordered(items).find(r=>[2,3].includes(r.schemaVersion)&&['solicitada','aceita','embarcado'].includes(r.status));$('activeRidePanel').classList.toggle('hidden',!current);if(!current)return;
 $('activeRideTitle').textContent=current.status==='solicitada'?'Solicitação em andamento':'Corrida ativa';$('activeRideSummary').textContent='Corrida '+current.id.slice(0,8)+' — '+statusNames[current.status]+'. Embarque: '+current.pickupLabel+' • Destino: '+current.destinationLabel;
 $('activeRideOpen').onclick=()=>document.querySelector('[data-ride-id="'+CSS.escape(current.id)+'"]')?.scrollIntoView({behavior:'smooth',block:'center'});}
 function draw(container,items,driver){container.replaceChildren();const title=document.createElement('h3');title.className='section-title';title.textContent=driver?'📥 Solicitações para este motorista':'🧾 Minhas solicitações';container.append(title);if(!items.length){const p=document.createElement('p');p.className='fare-help';p.textContent='Nenhuma solicitação encontrada.';container.append(p);return}
 for(const ride of ordered(items)){const c=document.createElement('div');c.className='card';c.dataset.rideId=ride.id;c.dataset.state=ride.status;c.style.background='#fafafa';if(['aceita','embarcado'].includes(ride.status)){c.style.border='2px solid var(--red)';c.style.background='#fff3f4';}
 const h=document.createElement('strong');h.textContent='Corrida '+ride.id.slice(0,8)+' — '+(statusNames[ride.status]||ride.status);c.append(h);const op=document.createElement('p');op.className='status';op.dataset.operationFor=ride.id;op.setAttribute('aria-live','polite');const message=operationMessages.get(ride.id);op.hidden=!message;if(message){op.textContent=message.text;op.dataset.kind=message.type;op.setAttribute('role',message.type==='error'?'alert':'status');op.style.color=message.type==='error'?'var(--red)':'var(--muted)';}c.append(op);const d=document.createElement('p');d.className='fare-help';d.textContent='Embarque: '+ride.pickupLabel+' | Destino: '+ride.destinationLabel+' | Serviço: '+ride.service;c.append(d);
 if(Number.isInteger(ride.estimate?.totalCents)){const price=document.createElement('p');price.className='fare-help';price.textContent='Estimativa (distâncias do cliente): '+(ride.estimate.totalCents/100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});c.append(price);}
-if(ride.schemaVersion!==2){const legacy=document.createElement('p');legacy.className='fare-help';legacy.textContent='Registro antigo: somente consulta. Valores e etapas não foram migrados.';c.append(legacy);}
+if(![2,3].includes(ride.schemaVersion)){const legacy=document.createElement('p');legacy.className='fare-help';legacy.textContent='Registro antigo: somente consulta. Valores e etapas não foram migrados.';c.append(legacy);}
 if(ride.status==='cancelada'){const audit=document.createElement('p');audit.className='fare-help';const date=ride.cancellation?.at?.toMillis?.();audit.textContent='Cancelada por '+(ride.cancellation?.role==='motorista'?'motorista':'passageiro')+' (UID '+(ride.cancellation?.by||'indisponível')+') — '+(date?new Date(date).toLocaleString('pt-BR'):'sincronizando horário...');c.append(audit);}
-if(driver&&ride.schemaVersion===2){if(ride.status==='solicitada'){button(c,'✅ Aceitar e abrir Maps até o passageiro',()=>step(ride,'aceita'));button(c,'Recusar solicitação',()=>step(ride,'recusada'));}if(ride.status==='aceita'){manualMap(c,'🗺️ Abrir rota até passageiro',safeCoords(ride.pickup));button(c,'👤 Confirmar embarque',()=>step(ride,'embarcado'));}if(ride.status==='embarcado'){manualMap(c,'🗺️ Abrir rota ao destino',safeCoords(ride.destination));button(c,'🏁 Finalizar corrida',()=>step(ride,'concluida'));}}
-else if(ride.status!=='cancelada'){const note=document.createElement('p');note.className='fare-help';note.textContent=ride.status==='solicitada'?'Aguardando aceite do motorista.':ride.status==='aceita'?'Motorista aceitou e está a caminho.':ride.status==='embarcado'?'Em viagem.':ride.status==='recusada'?'Solicitação recusada.':'Viagem encerrada.';c.append(note);}
+if(driver&&[2,3].includes(ride.schemaVersion)){if(ride.status==='solicitada'){button(c,'✅ Aceitar e abrir Maps até o passageiro',()=>step(ride,'aceita'));button(c,'Recusar solicitação',()=>step(ride,'recusada'));}if(ride.status==='aceita'){manualMap(c,'🗺️ Abrir rota até passageiro',safeCoords(ride.pickup));button(c,'👤 Confirmar embarque',()=>step(ride,'embarcado'));}if(ride.status==='embarcado'){manualMap(c,'🗺️ Abrir rota ao destino',safeCoords(ride.destination));button(c,'🏁 Finalizar corrida',()=>step(ride,'concluida'));}}
+else if(ride.status!=='cancelada'){const note=document.createElement('p');note.className='fare-help';note.textContent=ride.status==='solicitada'?'Aguardando aceite do motorista.':ride.status==='aceita'?'Motorista aceitou a corrida e está a caminho':ride.status==='embarcado'?'Em viagem.':ride.status==='recusada'?'Solicitação recusada.':'Viagem encerrada.';c.append(note);}
 const isPassenger=user?.uid===ride.passengerId,isDriver=user?.uid===ride.driverId;
-if(container.id!=='tripHistory'&&ride.schemaVersion===2&&((isPassenger&&['solicitada','aceita'].includes(ride.status))||(isDriver&&ride.status==='aceita'))){const b=button(c,'Cancelar corrida',()=>cancel(ride));b.dataset.cancelAction='true';b.disabled=!cancellationReady||pending.has(ride.id);}
+if(container.id!=='tripHistory'&&[2,3].includes(ride.schemaVersion)&&((isPassenger&&['solicitada','aceita'].includes(ride.status))||(isDriver&&ride.status==='aceita'))){const b=button(c,'Cancelar corrida',()=>cancel(ride));b.dataset.cancelAction='true';b.disabled=!cancellationReady||pending.has(ride.id);}
 container.append(c);}}
-function renderCurrent(){if(!profile)return;const target=driverMode?'rideIncoming':'rideOutgoing';draw($(target),lastRows,driverMode);draw($('tripHistory'),lastRows.filter(r=>['concluida','recusada','cancelada'].includes(r.status)),false);spotlight(lastRows);}
+const activePassengerStatus=s=>['solicitada','aceita','embarcado'].includes(s);
+const passengerMessage=s=>s==='aceita'?'Motorista aceitou a corrida e está a caminho':s==='embarcado'?'Corrida em viagem':'Aguardando resposta do motorista';
+function renderRequest(){const btn=$('rideSend'),message=$('ridePassengerRequestState'),error=$('ridePassengerError');
+const own=lastRows.filter(r=>r.passengerId===user?.uid),active=ordered(own.filter(r=>activePassengerStatus(r.status)));
+if(knownPassengerRide){const latest=own.find(r=>r.id===knownPassengerRide.id);if(latest&&!latest._fromCache&&!latest._pendingWrites){if(activePassengerStatus(latest.status))knownPassengerRide=latest;else knownPassengerRide=null;}}
+const current=active[0]||knownPassengerRide;let text='',blocked=true;
+if(passengerSending)text='Enviando solicitação…';
+else if(current)text=active.length>1?'Existem '+active.length+' corridas ativas nesta conta. Resolva os pedidos existentes; nenhum será apagado automaticamente.':passengerMessage(current.status);
+else if(!user||profile?.tipo!=='passageiro')text='Entre com uma conta Passageiro.';
+else if(!passengerRulesReady)text='Novas solicitações aguardam atualização das regras de proteção do passageiro.';
+else if(!registryLoaded||!rowsLoaded)text='Verificando pedidos existentes no servidor…';
+else if(!passengerRegistry)text='Conta antiga sem controle de exclusividade. Revise os pedidos e siga a inicialização segura da conta, sem apagar registros.';
+else if(passengerRegistry.rideId!==null)text='Existe uma corrida ativa nesta conta. Sincronizando o status…';
+else blocked=false;
+btn.disabled=blocked;btn.hidden=blocked&&!passengerSending;btn.textContent=passengerSending?'Enviando solicitação…':'🚗 Enviar solicitação ao motorista';message.hidden=!text;message.textContent=text;error.hidden=!passengerError;error.textContent=passengerError;
+$('requestBtn').disabled=blocked;
+}
+async function refreshPassengerState(token){registryLoaded=false;rowsLoaded=false;renderRequest();try{const uid=user?.uid;if(!uid)return;const q=query(collection(db,'corridas_teste'),where('passengerId','==',uid));const [r,s]=await Promise.all([getDocFromServer(doc(db,'passageiros_ativos',uid)),getDocsFromServer(q)]);if(token!==session)return;passengerRegistry=r.exists()?r.data():null;registryLoaded=true;rowsLoaded=true;lastRows=s.docs.map(d=>({...d.data(),id:d.id,_fromCache:false,_pendingWrites:false}));renderCurrent();}catch(e){if(token===session){passengerError='Não foi possível conferir pedidos no servidor ['+(e.code||'unknown')+']: '+e.message;renderRequest();}}}
+function renderCurrent(){if(!profile)return;const target=driverMode?'rideIncoming':'rideOutgoing';draw($(target),lastRows,driverMode);draw($('tripHistory'),lastRows.filter(r=>['concluida','recusada','cancelada'].includes(r.status)),false);spotlight(lastRows);renderRequest();}
 function start(userNow){
-const token=++session;clear();operationMessages.clear();confirmedOverrides.clear();profileUnsub?.();profileUnsub=null;user=userNow;profile=null;
+const token=++session;passengerRegistryUnsub?.();passengerRegistryUnsub=null;passengerRegistry=null;registryLoaded=false;rowsLoaded=false;passengerRulesReady=false;passengerSending=false;knownPassengerRide=null;passengerError='';clear();operationMessages.clear();confirmedOverrides.clear();profileUnsub?.();profileUnsub=null;user=userNow;profile=null;
 $('rideLogged').classList.toggle('hidden',!user);$('rideAuth').classList.toggle('hidden',!!user);
 $('ridePassengerPanel').classList.add('hidden');$('rideDriverPanel').classList.add('hidden');$('rideMyUid').value=user?.uid||'';
-if(!user){cancellationReady=false;$('cancellationStatus').textContent='';say('');return}const uid=user.uid;cancellationReady=false;$('cancellationStatus').textContent='Verificando disponibilidade do cancelamento...';
+renderRequest();if(!user){cancellationReady=false;$('cancellationStatus').textContent='';say('');return}const uid=user.uid;cancellationReady=false;$('cancellationStatus').textContent='Verificando disponibilidade do cancelamento...';
 call('cancellationSupported',{}).then(ok=>{if(token!==session)return;cancellationReady=ok;$('cancellationStatus').textContent=ok?'Cancelamento disponível antes do embarque, com confirmação.':'Cancelamento temporariamente indisponível. Recarregue após a atualização das regras.';renderCurrent();});
+call('passengerSingleSupported',{}).then(ok=>{if(token!==session)return;passengerRulesReady=ok;renderRequest();});
+passengerRegistryUnsub=onSnapshot(doc(db,'passageiros_ativos',uid),{includeMetadataChanges:true},snap=>{if(token!==session)return;if(snap.metadata?.fromCache||snap.metadata?.hasPendingWrites){registryLoaded=false;renderRequest();return;}passengerRegistry=snap.exists()?snap.data():null;registryLoaded=true;renderRequest();},e=>{if(token!==session)return;registryLoaded=false;passengerError='Controle do passageiro indisponível ['+(e.code||'unknown')+']: '+e.message;renderRequest();});
 profileUnsub=onSnapshot(doc(db,'perfis',uid),p=>{
 if(token!==session)return;clear();profile=p.exists()?p.data():null;
-const role=profile?.tipo;
+const role=profile?.tipo;renderRequest();
 $('ridePassengerPanel').classList.toggle('hidden',role!=='passageiro');$('rideDriverPanel').classList.toggle('hidden',role!=='motorista');
 if(!['passageiro','motorista'].includes(role)){say('Salve seu perfil na aba Conta antes de usar corridas.');return}
 const driver=role==='motorista',target=driver?'rideIncoming':'rideOutgoing';
 const q=query(collection(db,'corridas_teste'),where(driver?'driverId':'passengerId','==',uid));
 unsubs.push(onSnapshot(q,{includeMetadataChanges:true},s=>{if(token!==session)return;const rows=s.docs.map(d=>{const data={...d.data(),id:d.id,_pendingWrites:d.metadata?.hasPendingWrites||s.metadata?.hasPendingWrites||false,_fromCache:s.metadata?.fromCache||false};const prior=lastRows.find(r=>r.id===d.id),ack=confirmedOverrides.get(d.id);if(prior&&prior.status!==data.status&&!pending.has(d.id))operationMessages.delete(d.id);
 if(data._pendingWrites)return {...(ack||prior||{...data,status:'sincronizando'}),_pendingWrites:true};
-if(ack){if(data.status==='solicitada'&&ack.status!=='solicitada')return ack;if(data._fromCache&&data.status===ack.status)return ack;confirmedOverrides.delete(d.id);}return data;});lastRows=rows;driverMode=driver;renderCurrent()},e=>say('Falha ao acompanhar corridas ['+(e.code||'unknown')+']: '+e.message)));say('Conectado ao Firestore para corridas de teste.');
+if(ack){if(data.status==='solicitada'&&ack.status!=='solicitada')return ack;if(data._fromCache&&data.status===ack.status)return ack;confirmedOverrides.delete(d.id);}return data;});lastRows=rows;driverMode=driver;rowsLoaded=!s.metadata?.fromCache&&!s.metadata?.hasPendingWrites;renderCurrent()},e=>{rowsLoaded=false;passengerError='Falha ao acompanhar corridas ['+(e.code||'unknown')+']: '+e.message;say(passengerError);renderRequest();}));say('Conectado ao Firestore para corridas de teste.');
 },e=>{clear();profile=null;$('ridePassengerPanel').classList.add('hidden');$('rideDriverPanel').classList.add('hidden');say('Erro ao acompanhar perfil: '+(e.code||e.message))});
 }
 onAuthStateChanged(auth,start);
 $('syncDriverBackend').onclick=async()=>{const status=$('driverBackendStatus');if(profile?.tipo!=='motorista'){status.textContent='Salve perfil Motorista na Conta.';return}let position;try{position=JSON.parse(localStorage.getItem('mc_demo_driver_position'));}catch{}if(!safeCoords(position)||Date.now()-(position.at||0)>900000){status.textContent='Atualize o GPS do motorista neste aparelho antes de sincronizar.';return}try{await window.mcDriverSettings.save({position:safeCoords(position),vehicle:profile.veiculo});status.textContent='Configuração da conta e GPS sincronizados.';}catch(e){status.textContent='Não foi possível salvar: '+e.message;}};
 $('rideCopyUid').onclick=async()=>{try{await navigator.clipboard.writeText($('rideMyUid').value);say('Código copiado.')}catch{say('Selecione o código e copie manualmente.')}};
-$('rideSend').onclick=async()=>{if(!user||profile?.tipo!=='passageiro'){say('Entre com uma conta Passageiro.');return}const driverId=$('rideTargetUid').value.trim(),ctx=window.mcRideContext?.(),pickup=safeCoords(ctx?.pickup),destination=safeCoords(ctx?.destination);if(!/^[A-Za-z0-9_-]{1,128}$/.test(driverId)||driverId===user.uid){say('Informe o UID válido de outra conta de motorista.');return}if(!pickup||!destination){say('Na aba Passageiro, confirme GPS e selecione o destino na busca.');return}const pickupLabel=$('ridePickupText').value.trim(),destinationLabel=$('rideDestinationText').value.trim();if(pickupLabel.length<3||destinationLabel.length<3||pickupLabel.length>120||destinationLabel.length>120){say('Preencha as referências de embarque e destino (3 a 120 caracteres).');return}
-const btn=$('rideSend');btn.disabled=true;say('Enviando solicitação ao motorista...');try{await call('requestRide',{driverId,service:ctx.service,pickup,destination,pickupLabel,destinationLabel});say('Solicitação enviada! Veja o painel do motorista no outro celular.');}catch(e){say('Falha ao solicitar: '+(e.code||e.message))}finally{btn.disabled=false}};
+$('rideSend').onclick=async()=>{
+renderRequest();if(passengerSending||$('rideSend').disabled||$('rideSend').hidden)return;
+const token=session;passengerSending=true;passengerError='';renderRequest();let attempted=false;
+try{if(!user||profile?.tipo!=='passageiro')throw Error('Entre com uma conta Passageiro.');const driverId=$('rideTargetUid').value.trim(),ctx=window.mcRideContext?.(),pickup=safeCoords(ctx?.pickup),destination=safeCoords(ctx?.destination);
+if(!/^[A-Za-z0-9_-]{1,128}$/.test(driverId)||driverId===user.uid)throw Error('Informe o UID válido de outra conta de motorista.');
+if(!pickup||!destination)throw Error('Confirme o GPS e selecione o destino na busca.');const pickupLabel=$('ridePickupText').value.trim(),destinationLabel=$('rideDestinationText').value.trim();if([pickupLabel,destinationLabel].some(x=>x.length<3||x.length>120))throw Error('Preencha as referências de embarque e destino (3 a 120 caracteres).');
+attempted=true;const result=await call('requestRide',{driverId,service:ctx.service,pickup,destination,pickupLabel,destinationLabel});if(token!==session)return;if(!result.serverConfirmed)throw Error('Sem confirmação do Firestore.');knownPassengerRide=result.ride;confirmedRow(result.ride);say('Aguardando resposta do motorista');
+}catch(e){if(token===session){passengerError='Falha ao solicitar ['+(e.code||'validation')+']: '+e.message;say(passengerError);if(attempted)await refreshPassengerState(token);}}
+finally{if(token===session){passengerSending=false;renderRequest();}}
+};
 }catch(e){say('Módulo de corridas indisponível: '+e.message)}
 })();
 </script>

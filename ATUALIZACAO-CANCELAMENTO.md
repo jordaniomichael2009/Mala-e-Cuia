@@ -1,5 +1,7 @@
 # Atualização compatível — cancelamento antes do embarque
 
+> Documento da entrega anterior. Para o estado atual, prevalece `ATUALIZACAO-PASSAGEIRO.md`: novas regras obrigatórias, criações schema 3, compatibilidade limitada a operações schema 2 existentes e revisão de contas antigas. As contagens abaixo são históricas; resultados atuais em `RESULTADOS-DOS-TESTES.md`.
+
 Projeto: `mobilidademalaecuia`. Branch da interface: `teste-sem-blaze`; Pages já configurado em `/docs`. Push nesta branch publica a interface. Não alterar a main, a fonte do Pages ou o plano Spark/Blaze.
 
 ## Contrato da operação

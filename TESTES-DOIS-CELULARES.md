@@ -2,7 +2,7 @@
 
 ## Estado desta revisão
 
-Não executado fisicamente. Nenhum push, publicação, troca do Pages ou aplicação de regras foi feito. O roteiro só pode ser executado contra Firebase real após aprovação da publicação e das regras correspondentes.
+Não executado fisicamente. O push autorizado em teste-sem-blaze publica a interface do Pages. A aplicação das regras e as alterações de dados no Firebase são separadas e não foram executadas nesta revisão. Usar as regras correspondentes antes de testar.
 
 Primeiro validar localmente:
 
@@ -17,7 +17,7 @@ npm run test:emulator
 
 - Celular A e celular B com internet, HTTPS, navegador atualizado e permissão de localização. Usar a mesma versão de `docs/` nos dois e recarregar completamente.
 - **Duas contas novas de teste:** P (passageiro) e M (motorista). Isso não migra contas antigas. Se for reutilizar conta, aplicar antes o plano aprovado de `COMPATIBILIDADE-LEGADOS.md`; corrida antiga ativa sem reserva é bloqueio para o teste seguro.
-- Confirmar E-mail/Senha no Auth, projeto/domínio e revisão das novas regras. Não usar as regras anteriores que bloqueiam escritas. No Pages, confirmar a fonte efetivamente autorizada; o endereço atual pode ainda estar servindo a main.
+- Confirmar E-mail/Senha no Auth, projeto/domínio e revisão das novas regras. Não usar as regras anteriores que bloqueiam escritas. No Pages, confirmar a fonte efetivamente autorizada; a fonte atual é teste-sem-blaze /docs; não alterar a main.
 - Registrar aparelhos, SO, navegador, versão/manifesto, horários e resultados sem guardar senhas.
 
 ## Fluxo principal
@@ -63,7 +63,7 @@ A estimativa vem dos três trajetos calculados no celular do motorista. Regras c
 
 ## Novo teste de cancelamento — antes do embarque
 
-Pré-requisito: conferir `ATUALIZACAO-CANCELAMENTO.md` e aplicar as regras novas pelo console quando autorizado. Sem as regras, Cancelar aparece desabilitado; recarregar após a atualização. A corrida deve ter schemaVersion 2.
+Pré-requisito: conferir `ATUALIZACAO-CANCELAMENTO.md` e aplicar as regras novas pelo console quando autorizado. Sem as regras, Cancelar aparece desabilitado; recarregar após a atualização. Novas corridas devem ter schemaVersion 3; schema 2 existente mantém operações permitidas.
 
 1. A (P) envia um pedido. No topo deve aparecer Solicitação em andamento. Em B (M), antes do aceite há Recusar e não Cancelar.
 2. A toca Cancelar e desiste na confirmação: nada deve mudar. Toca novamente e confirma: status Cancelada nos dois aparelhos, com papel, UID e horário. Sem reserva criada. Histórico deve registrar o cancelamento.
@@ -80,3 +80,18 @@ Nenhum dos passos físicos foi executado nesta sessão. Os testes de regras e di
 ## Aceite: diagnóstico e Maps
 
 No cartão do motorista, acompanhar verificação, rotas 1/3 a 3/3 e confirmação do Firestore. Antes da confirmação, deve continuar Solicitada e não abrir Maps. Após confirmação, deve aparecer Aceita com Abrir rota até passageiro, Confirmar embarque e Cancelar; Recusar desaparece. Testar o link manual após voltar do Maps. Em falha, registrar o código/etapa mostrados no próprio cartão, sem forçar alteração da corrida pelo console. Conferir o painel do passageiro em cada etapa. Nenhuma reprodução real da corrida vPin18pd foi executada nesta sessão.
+
+## Envio único do passageiro — protocolo 3
+
+Pré-requisitos: ler `ATUALIZACAO-PASSAGEIRO.md`, revisar/aplicar as regras completas após autorização e usar contas com controle correto. Para perfil antigo, inventariar e resolver todos os ativos antes da inicialização manual. Não apagar pedidos duplicados. A execução abaixo ainda está pendente em aparelhos reais.
+
+1. No aparelho A, entrar com P e preparar UID de M, GPS e destino. Tocar várias vezes rapidamente em Enviar. Desde o primeiro toque deve aparecer **Enviando solicitação…**, com botão bloqueado. Após confirmação: **Aguardando resposta do motorista**, sem botão clicável. Conferir um único novo documento e `passageiros_ativos/P.rideId` igual ao ID.
+2. Repetir com rede lenta (limitação de rede do aparelho, sem interromper uma corrida em viagem). Antes da confirmação não pode dizer que enviou com sucesso. Cortar a rede durante envio, recarregar e reconectar: deve verificar o servidor antes de oferecer outra tentativa. Se a gravação já ocorreu, recuperar a espera em vez de criar pedido extra. Registrar qualquer erro/código.
+3. Abrir P no aparelho B ou em uma segunda sessão independente enquanto o pedido aguarda. Deve mostrar espera e impedir envio. Recarregar ambos: bloqueio permanece. Depois retornar B à conta M para continuar.
+4. Para concorrência real, deixar duas sessões de P prontas ANTES de qualquer pedido e tocar em ambas simultaneamente. Apenas uma nova corrida pode existir; a outra deve acompanhar a corrida existente/mostrar o conflito. Usar uma terceira sessão de M ou alternar conta depois para resolver. Não resetar reservas manualmente para repetir.
+5. M aceita: P vê **Motorista aceitou a corrida e está a caminho**. P não envia outro pedido em nenhum aparelho. Embarcar: bloqueio continua em viagem; cancelar fica indisponível. Concluir: ambas as reservas são liberadas atomicamente e P pode solicitar novamente.
+6. Repetir com recusa e com cancelamento antes do embarque (por cada participante na etapa permitida). Novo pedido só aparece após confirmação do estado final e da reserva livre. Conferir histórico/autoria/horário.
+7. Conta com duplicados antigos: confirmar que todos continuam registrados, a tela informa os ativos e nenhum novo pedido é permitido. Não esperar tratamento/exclusão automática. Registros sem schema exigem revisão administrativa separada.
+8. Registrar IDs completos, UIDs, horários, aparelhos/navegadores, mensagem e número de documentos novos em cada tentativa. Não registrar senhas. Comparar contagem antes/depois sem apagar o histórico.
+
+Tentativas maliciosas de trocar participantes, apagar reserva, liberar sem finalizar ou criar dois pedidos já são cobertas pelo Emulator. Não executar adulterações no Firebase real como parte do teste físico.

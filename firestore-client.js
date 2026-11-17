@@ -14,9 +14,24 @@ export function createFirestoreClient({sdk,db,auth,routeKm}) {
  if(d.emptyRate===''||d.occupiedRate===''||![d.emptyRate,d.occupiedRate].every(n=>typeof n==='number'&&Number.isFinite(n)&&n>=0&&n<=100))fail('invalid-argument','Tarifas entre R$ 0 e R$ 100.');
  const next={base:d.base,vehicle:d.vehicle,emptyRateCents:Math.round(d.emptyRate*100),occupiedRateCents:Math.round(d.occupiedRate*100),version:(current?.version??0)+1,updatedAt:serverTimestamp(),position:d.position??current?.position??null,positionAt:d.position?serverTimestamp():current?.positionAt??null};
  tx.set(target,next);return {saved:true,version:next.version};});}
+ async function saveProfile(data){const u=uid();return runTransaction(db,async tx=>{const profileRef=ref('perfis',u),registryRef=ref('passageiros_ativos',u),p=await tx.get(profileRef),r=await tx.get(registryRef);
+ if(!exists(p)&&!exists(r))tx.set(registryRef,{rideId:null,updatedAt:serverTimestamp()});
+ tx.set(profileRef,{nome:data.nome,tipo:data.tipo,veiculo:data.veiculo,atualizadoEm:serverTimestamp()});return {saved:true};});}
  async function requestRide(d){const u=uid(),target=doc(collection(db,'corridas_teste'));
- const ride={schemaVersion:2,passengerId:u,driverId:d.driverId,status:'solicitada',service:d.service,pickup:d.pickup,destination:d.destination,pickupLabel:d.pickupLabel,destinationLabel:d.destinationLabel,estimate:null,createdAt:serverTimestamp(),updatedAt:serverTimestamp()};
- await runTransaction(db,async tx=>{const p=await tx.get(ref('perfis',u));if(!exists(p)||p.data().tipo!=='passageiro')fail('permission-denied','Salve perfil Passageiro.');tx.set(target,ride);});return {id:target.id};}
+ // The query protects users from historical unregistered duplicates. The transaction/rules
+ // enforce exclusivity for the registered protocol independently of this preflight/UI.
+ const history=await sdk.getDocsFromServer(sdk.query(collection(db,'corridas_teste'),sdk.where('passengerId','==',u)));
+ if(history.docs.some(r=>['solicitada','aceita','embarcado'].includes(r.data().status)))fail('active-ride','Já existe uma corrida solicitada, aceita ou em viagem nesta conta.');
+ const ride={schemaVersion:3,passengerId:u,driverId:d.driverId,status:'solicitada',service:d.service,pickup:d.pickup,destination:d.destination,pickupLabel:d.pickupLabel,destinationLabel:d.destinationLabel,estimate:null,createdAt:serverTimestamp(),updatedAt:serverTimestamp()};
+ try{await runTransaction(db,async tx=>{const p=await tx.get(ref('perfis',u)),registryRef=ref('passageiros_ativos',u),registry=await tx.get(registryRef);
+ if(!exists(p)||p.data().tipo!=='passageiro')fail('permission-denied','Salve perfil Passageiro.');
+ if(!exists(registry))fail('passenger-review-required','Conta antiga sem controle de exclusividade. Confira os pedidos existentes e inicialize a conta pelo processo de revisão, sem apagar corridas.');
+ if(registry.data().rideId!==null)fail('active-ride','Já existe uma corrida ativa nesta conta. Aguarde a resposta ou conclusão.');
+ tx.set(target,ride);tx.set(registryRef,{rideId:target.id,updatedAt:serverTimestamp()});});}catch(error){
+ // A rules rejection can win the race before the SDK retries the stale transaction.
+ // Read the authoritative slot for an actionable error; never turn failure into success.
+ if(['permission-denied','aborted'].includes(error.code)){let current;try{current=await sdk.getDocFromServer(ref('passageiros_ativos',u));}catch{}if(current?.exists()&&current.data().rideId!==null)fail('active-ride','Outra sessão já enviou uma corrida nesta conta. Aguarde a resposta ou conclusão.');}throw error;}
+ return {id:target.id,serverConfirmed:true,ride:{...ride,id:target.id,createdAt:null,updatedAt:null}};}
  const meters=km=>{if(!Number.isFinite(km)||km<0||km>10000)fail('unavailable','Distância inválida.');return Math.round(km*1000);};
  async function executeRideStep(d,report){const u=uid(),target=ref('corridas_teste',d.rideId);let prepared=null;
  report('checking','Verificando sessão, corrida, configuração e GPS...');
@@ -24,7 +39,7 @@ export function createFirestoreClient({sdk,db,auth,routeKm}) {
   // Read only this driver's private configuration; the passenger never reads the base.
   const {getDocFromServer}=sdk;const [r,c]=await Promise.all([getDocFromServer(target),getDocFromServer(ref('config_motoristas',u))]);
   if(!exists(r)||!exists(c))fail('failed-precondition','Corrida ou configuração não encontrada.');
-  const ride=r.data(),cfg=c.data();if(ride.schemaVersion!==2)fail('failed-precondition','Corrida antiga: somente consulta; recrie o pedido após revisar a migração.');if(ride.driverId!==u||ride.status!=='solicitada')fail('permission-denied','Solicitação não disponível para esta conta.');
+  const ride=r.data(),cfg=c.data();if(![2,3].includes(ride.schemaVersion))fail('failed-precondition','Corrida antiga: somente consulta; recrie o pedido após revisar a migração.');if(ride.driverId!==u||ride.status!=='solicitada')fail('permission-denied','Solicitação não disponível para esta conta.');
   if(!cfg.position||typeof cfg.positionAt?.toMillis!=='function'||Date.now()-cfg.positionAt.toMillis()>900000)fail('failed-precondition','GPS do motorista ausente ou desatualizado. Toque em Verificar meu GPS e depois em Salvar configuração da conta e atualizar GPS.');
   report('route-pickup','Calculando rota 1/3: motorista até o passageiro...');const toPickupMeters=meters(await routeKm(cfg.position,ride.pickup));
   report('route-destination','Calculando rota 2/3: embarque até o destino...');const occupiedMeters=meters(await routeKm(ride.pickup,ride.destination));
@@ -35,7 +50,7 @@ export function createFirestoreClient({sdk,db,auth,routeKm}) {
  const committed=await runTransaction(db,async tx=>{
   const rideSnap=await tx.get(target),lockRef=ref('motoristas_ativos',u),lock=await tx.get(lockRef),availabilityRef=ref('disponibilidades',u),available=await tx.get(availabilityRef);
   if(!exists(rideSnap))fail('not-found','Corrida não encontrada.');const ride=rideSnap.data();
-  if(ride.schemaVersion!==2)fail('failed-precondition','Corrida antiga: somente consulta.');
+  if(![2,3].includes(ride.schemaVersion))fail('failed-precondition','Corrida antiga: somente consulta.');
   if(ride.driverId!==u)fail('permission-denied','Apenas o motorista designado.');
   const transitions={solicitada:['aceita','recusada'],aceita:['embarcado'],embarcado:['concluida']};if(!transitions[ride.status]?.includes(d.next))fail('failed-precondition','Etapa já alterada ou inválida.');
   if(d.next==='aceita'){
@@ -47,6 +62,7 @@ export function createFirestoreClient({sdk,db,auth,routeKm}) {
    if(!exists(lock)||lock.data().rideId!==d.rideId)fail('failed-precondition','Reserva inconsistente.');
    if(d.next==='concluida'){tx.delete(lockRef);tx.set(availabilityRef,{disponivel:true,atualizadoEm:serverTimestamp()});}
   }
+  if(ride.schemaVersion===3&&['recusada','concluida'].includes(d.next))tx.set(ref('passageiros_ativos',ride.passengerId),{rideId:null,updatedAt:serverTimestamp()});
   tx.update(target,{status:d.next,updatedAt:serverTimestamp(),...(prepared?{estimate:prepared}:{})});return {status:d.next,serverConfirmed:true,ride:{...ride,id:d.rideId,status:d.next,...(prepared?{estimate:prepared}:{}),updatedAt:null}};
  });
  report('confirmed','Gravação confirmada pelo Firestore.');
@@ -56,17 +72,19 @@ export function createFirestoreClient({sdk,db,auth,routeKm}) {
  try{return await executeRideStep(d,report);}catch(error){const wrapped=new Error(error?.message||'Falha na operação.');wrapped.code=typeof error?.code==='string'?error.code:(['AbortError','TimeoutError'].includes(error?.name)?'routes/timeout':phase.startsWith('route-')?'routes/unavailable':'unknown');wrapped.operationPhase=phase;wrapped.cause=error;throw wrapped;}}
  async function cancelRide(d){const u=uid(),target=ref('corridas_teste',d.rideId);
  return runTransaction(db,async tx=>{const snap=await tx.get(target);if(!exists(snap))fail('not-found','Corrida não encontrada.');const ride=snap.data();
- if(ride.schemaVersion!==2)fail('failed-precondition','Corrida antiga: somente consulta.');
+ if(![2,3].includes(ride.schemaVersion))fail('failed-precondition','Corrida antiga: somente consulta.');
  const passenger=ride.passengerId===u,driver=ride.driverId===u;
  if(!passenger&&!driver)fail('permission-denied','Você não participa desta corrida.');
  if(!['solicitada','aceita'].includes(ride.status)||(driver&&ride.status!=='aceita'))fail('failed-precondition','Não é possível cancelar nesta etapa.');
  const released=ride.status==='aceita';
  // The passenger need not read the driver's private reservation. Rules validate its exact ID.
  if(released){tx.delete(ref('motoristas_ativos',ride.driverId));tx.set(ref('disponibilidades',ride.driverId),{disponivel:true,atualizadoEm:serverTimestamp()});}
+ if(ride.schemaVersion===3)tx.set(ref('passageiros_ativos',ride.passengerId),{rideId:null,updatedAt:serverTimestamp()});
  tx.update(target,{status:'cancelada',updatedAt:serverTimestamp(),cancellation:{by:u,role:passenger?'passageiro':'motorista',at:serverTimestamp()}});
  return {status:'cancelada',released};});}
  async function cancellationSupported(){uid();try{await sdk.getDocFromServer(ref('system_capabilities','cancellation-v1'));return true;}catch{return false;}}
- return {configureDriver,requestRide,rideStep,cancelRide,cancellationSupported};
+ async function passengerSingleSupported(){uid();try{await sdk.getDocFromServer(ref('system_capabilities','passenger-single-v1'));return true;}catch{return false;}}
+ return {configureDriver,saveProfile,requestRide,rideStep,cancelRide,cancellationSupported,passengerSingleSupported};
 }
 
 export async function browserRouteKm(a,b){if(a.lat===b.lat&&a.lng===b.lng)return 0;

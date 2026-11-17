@@ -17,23 +17,14 @@ Esta análise usa código Git e fixtures no Firestore Emulator, **não dados rea
 | Corrida ativa antiga com reserva | Consultável, mas etapas antigas ficam bloqueadas | Reserva não pode ser apagada/liberada pelo cliente novo | Resolver por processo administrativo aprovado, preservando histórico; não ignorar a reserva |
 | Corrida ativa antiga SEM reserva | Consultável | **BLOQUEIO DE MIGRAÇÃO:** regras de reserva não conseguem descobrir outras corridas na coleção por consulta | Inventariar/resolver antes de habilitar o motorista; não afirmar exclusividade entre registros antigos e novos |
 
-## Marcador desta revisão
+## Marcador desta revisão e passageiro único
 
-Novos pedidos têm `schemaVersion: 2`. Regras e cliente exigem esse marcador para atualizar etapas. Dados sem o marcador permanecem legíveis, mas não podem ser “promovidos” pelo cliente alterando o campo. A interface não mostra ações de motorista para registros antigos.
+Novos pedidos têm `schemaVersion: 3` e controle persistente em `passageiros_ativos/{uid}`. Criar exige controle previamente livre, depois reservado ao ID exato. Regras negam novas criações schema 2, inclusive por clientes antigos. Registros schema 2 existentes mantêm aceite/recusa/embarque/conclusão/cancelamento antes do embarque; não ganham automaticamente controle do passageiro. Sem marcador, continuam somente consulta.
 
-O marcador não migra nem resolve corridas antigas. O teste de bloqueio de migração demonstra deliberadamente que, se um operador reutilizar uma conta com corrida antiga aceita sem reserva, uma nova corrida pode ser aceita e coexistir com a antiga. Isso NÃO é uma garantia de segurança entre esquemas; é motivo para impedir a troca para contas antigas sem inventário e tratamento administrativo.
+Perfil antigo sem controle não pode inicializá-lo pelo SDK, mesmo sem corridas visíveis ou ao salvar novamente o perfil. Inventariar e resolver TODOS os registros ativos antes de inicialização manual autorizada. Não alterar nem excluir duplicados automaticamente. Ver o procedimento exato e a sequência de atualização em `ATUALIZACAO-PASSAGEIRO.md`.
 
-## Plano proposto, não executado
-
-1. Guardar backup dos dados e das regras em uso. Inventariar por UID as corridas solicitadas, aceitas, embarcadas, concluídas e as reservas.
-2. Separar um teste restrito com **duas contas novas**, ou tratar explicitamente o histórico das duas contas selecionadas antes de usá-las.
-3. Decidir como encerrar/cancelar/arquivar corridas antigas ativas. Não existe cancelamento ou liberação administrativa implementados no app.
-4. Planejar a transformação de configurações UUID e timestamps numéricos, preservando tarifas/base sem usar valores padrão. Não há script de migração autorizado/executado.
-5. Revisar cliente/regras e obter autorização antes de qualquer alteração real. Não alternar para o novo Pages enquanto contas antigas incompatíveis forem usadas no teste.
+As regras não conseguem descobrir por consulta uma corrida histórica sem reserva. A garantia do protocolo novo não corrige retroativamente duplicados antigos; controles não devem ser inicializados livres por conveniência. A consulta inicial do aplicativo é defesa adicional, não prova de segurança dos dados legados.
 
 ## Evidência
 
-`tests/emulator.test.cjs` contém seis casos adicionais de compatibilidade: perfil antigo, disponibilidade antiga, configuração UUID, pedidos antigos de três variantes, histórico/reserva antigos e o bloqueio de migração por corrida ativa sem reserva. Passaram no Emulator local. Não substituem um inventário do Firebase real.
-
-
-O cancelamento desta entrega é aditivo para registros schemaVersion 2. Não desbloqueia cancelamento ou liberação de corridas antigas sem marcador. As regras novas aceitam o cliente Pages anterior; não é preciso migrar registros schemaVersion 2 para adicionar o mapa cancellation, que só é inserido em um cancelamento válido. A rotina não exclui corridas.
+Os testes de compatibilidade e de passageiro em `tests/emulator.test.cjs` preservam documentos antigos/duplicados, bloqueiam novas criações e a autoinicialização, permitem resolver registros schema 2 válidos e só liberam nova criação após revisão administrativa simulada no Emulator. Não houve inventário/migração no projeto real. Configurações antigas UUID/timestamps numéricos continuam exigindo migração planejada sem sobrescrever tarifas/base.

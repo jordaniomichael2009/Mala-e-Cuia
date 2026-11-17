@@ -38,7 +38,7 @@ O navegador usa Chromium do sistema ou o instalado com `npx playwright install c
 
 ## Preparação atual do Pages
 
-Ler `PUBLICACAO-PAGES-REVISAO.md`, `COMPATIBILIDADE-LEGADOS.md` e `REGRAS-COMPLETAS-FIRESTORE.md`. `npm run prepare:pages` gera somente quatro arquivos em `docs/` e um manifesto na raiz. Fonte proposta para eventual publicação: `teste-sem-blaze /docs`; não foi configurada. `npm run test:pages` testa esse pacote no subdiretório `/Mala-e-Cuia/` com a rede simulada. Corridas novas têm `schemaVersion: 2`; antigas são somente consulta. A migração de contas com corridas antigas ativas é bloqueio antes de reutilizá-las.
+Ler `PUBLICACAO-PAGES-REVISAO.md`, `COMPATIBILIDADE-LEGADOS.md` e `REGRAS-COMPLETAS-FIRESTORE.md`. `npm run prepare:pages` gera somente quatro arquivos em `docs/` e um manifesto na raiz. Fonte atual do Pages: `teste-sem-blaze /docs`; a configuração não será alterada. `npm run test:pages` testa esse pacote no subdiretório `/Mala-e-Cuia/` com a rede simulada. Corridas novas têm `schemaVersion: 3`; registros schema 2 mantêm suas etapas e registros sem marcador são somente consulta. A migração de contas com corridas antigas ativas é bloqueio antes de reutilizá-las.
 
 
 ## Corrida ativa e cancelamento
@@ -49,3 +49,7 @@ A corrida ativa aparece em destaque e antes do histórico. Passageiro cancela es
 ## Aceite e Maps
 
 Ver `DIAGNOSTICO-ACEITE.md`: progresso e erros no cartão, troca de controles somente após confirmação do Firestore, revalidação antes de abrir rota e link manual. Não foi necessária mudança nas permissões das regras.
+
+## Proteção contra envio duplicado
+
+Leia `ATUALIZACAO-PASSAGEIRO.md`. Bloqueio imediato no envio, texto sem clique após confirmação e reserva transacional persistente do passageiro. Regras completas novas são obrigatórias; a interface bloqueia novos pedidos sob as regras anteriores. Contas já existentes sem controle `passageiros_ativos` precisam de revisão manual antes de habilitar novos pedidos. Nenhum duplicado é apagado automaticamente.

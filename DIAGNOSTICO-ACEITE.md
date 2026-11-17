@@ -1,5 +1,7 @@
 # Diagnóstico e confirmação do aceite
 
+> Documento da entrega anterior. Para o estado atual, prevalece `ATUALIZACAO-PASSAGEIRO.md`: novas regras obrigatórias, criações schema 3, compatibilidade limitada a operações schema 2 existentes e revisão de contas antigas. As contagens abaixo são históricas; resultados atuais em `RESULTADOS-DOS-TESTES.md`.
+
 ## Caso informado
 
 A captura mostra a corrida cujo prefixo é `vPin18pd` ainda em Solicitada. Não houve acesso autenticado ao Firebase real para inspecionar esse documento ou seus logs; portanto não é possível afirmar qual erro específico ocorreu nessa conta/aparelho. A correção não altera o documento manualmente nem contorna regras.

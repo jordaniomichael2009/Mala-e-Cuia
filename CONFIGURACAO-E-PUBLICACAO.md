@@ -48,3 +48,7 @@ O celular do motorista calcula `GPS → embarque`, `embarque → destino` e `des
 ## Atualização de cancelamento
 
 O Pages já usa `teste-sem-blaze /docs`; push nessa branch publica a UI. Não alterar a fonte ou a main. O cancelamento acrescenta regras compatíveis com o cliente anterior. Ver `ATUALIZACAO-CANCELAMENTO.md`: ordem preferencial regras primeiro; sem autenticação Firebase, entregar o arquivo exato para aplicação manual e publicar UI com sondagem de compatibilidade. Nenhum documento de capacidade precisa ser criado. Não mudar plano, excluir registros ou usar Functions.
+
+## Atualização vigente: protocolo 3
+
+Prevalece `ATUALIZACAO-PASSAGEIRO.md`, com o arquivo integral em `REGRAS-COMPLETAS-FIRESTORE.md`. O push em teste-sem-blaze está autorizado após os testes e publica o Pages existente, sem mudar sua fonte. Nesta revisão não se aplica regra nem se altera dado no Firebase. A UI bloqueia criação sob regras anteriores e contas antigas sem controle do passageiro. Inicialização manual exige revisão/ausência de corridas ativas; não excluir duplicados nem restaurar regras antigas sobre corridas schema 3.

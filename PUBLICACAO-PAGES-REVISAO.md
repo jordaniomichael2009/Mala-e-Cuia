@@ -4,9 +4,9 @@
 
 Branch: `teste-sem-blaze`. Pasta de publicação: **`/docs`**. A `main` não deve receber commits, merge ou arquivos desta revisão. Nenhuma configuração do Pages foi alterada.
 
-A configuração foi conferida nesta tarefa: `teste-sem-blaze /docs`. O push autorizado nesta branch atualiza o site público existente. Não mudar a fonte, não habilitar outro workflow e não alterar a main. A aplicação das regras é separada e está descrita em `ATUALIZACAO-CANCELAMENTO.md`.
+A configuração foi conferida nesta tarefa: `teste-sem-blaze /docs`. O push autorizado nesta branch atualiza o site público existente. Não mudar a fonte, não habilitar outro workflow e não alterar a main. A aplicação das regras é separada e está descrita em `ATUALIZACAO-PASSAGEIRO.md`.
 
-Endereço esperado após eventual aprovação: `https://jordaniomichael2009.github.io/Mala-e-Cuia/`. Esse endereço já representa a branch de teste; não é uma prévia independente da publicação atual.
+Endereço do site: `https://jordaniomichael2009.github.io/Mala-e-Cuia/`. Esse endereço já representa a branch de teste; não é uma prévia independente da publicação atual.
 
 ## Lista EXATA do conteúdo estático necessário
 
@@ -43,7 +43,7 @@ As importações `./driver-settings.js` e `./firestore-client.js` são relativas
 3. Comparar com as regras reais e outras coleções do projeto. Esta proposta nega coleções não descritas. Nenhuma leitura ou alteração do banco real foi feita nesta revisão; o inventário continua pendente.
 4. Conferir Authentication E-mail/Senha, projeto do HTML e domínio `jordaniomichael2009.github.io` nos domínios autorizados quando necessário. Não colocar esquema ou `/Mala-e-Cuia/` no campo de domínio.
 5. Planejar a aplicação coordenada de cliente/regras, backup e rollback compatível. A antiga interface da main não é compatível para gravar corridas sob estas regras.
-6. Somente com confirmação: enviar os arquivos da revisão à branch de teste, aplicar as regras aprovadas separadamente e trocar a fonte Pages para `teste-sem-blaze /docs`. Não executar agora.
+6. O push desta revisão está autorizado apenas em `teste-sem-blaze` após testes; não trocar a fonte Pages nem alterar main/Firebase. Aplicação das regras e inicialização de contas são ações separadas.
 
 ## Teste físico e preço
 
@@ -51,3 +51,7 @@ Seguir `TESTES-DOIS-CELULARES.md`, com dois aparelhos e duas contas novas. A est
 
 
 Atualização de cancelamento: publicar a UI foi autorizado após os testes. A ordem ideal é regras novas primeiro e interface depois; sem autenticação Firebase disponível, a interface usa a sondagem de compatibilidade e mantém Cancelar desabilitado sob as regras antigas. Não criar documento de capacidade nem alterar dados para habilitar o recurso.
+
+## Atualização de passageiro único
+
+Novas criações schema 3 exigem controle de passageiro e regras novas. Sem elas, a nova UI bloqueia novos pedidos. Regras negam criações do cliente schema 2 anterior, mas permitem suas operações em registros existentes. Recarregar ambos os aparelhos; revisar/inicializar contas antigas somente após resolver todas as corridas ativas, conforme `ATUALIZACAO-PASSAGEIRO.md`. Nenhum duplicado é apagado.

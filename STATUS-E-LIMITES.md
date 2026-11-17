@@ -14,7 +14,7 @@ Todos os itens permanecem parciais como entrega operacional, pois não houve tes
 | 8 | Maps até embarque | Link só após sucesso da transação | Maps nativo em aparelho |
 | 9 | Embarque/Maps destino | Etapa nas regras e link | Maps nativo em aparelho |
 | 10 | Conclusão/liberação | Transação pareada, exclusão de reserva e disponibilidade; testes de tentativa incompleta | Físicos; recuperação administrativa de legados |
-| 11 | Histórico | Lista básica de concluídas/recusadas | Filtros/paginação/ganhos e teste físico |
+| 11 | Histórico | Lista básica de concluídas/recusadas/canceladas | Filtros/paginação/ganhos e teste físico |
 | 12 | Duas tarifas/três trajetos | **Estimativa do cliente**, tarifas/fórmula/versão validadas nas regras no aceite | Distâncias/GPS verificados por servidor **não implementados**; aprovação do preço pelo passageiro/pagamento não implementados |
 
 Não existe validação independente de distância nem cotação garantida no backend. Sem Functions, esta revisão prioriza a segurança de participantes, reservas e etapas; o preço é explicitamente estimativa. A estimativa surge no aceite, para preservar a base privada do motorista.
@@ -22,7 +22,9 @@ Não existe validação independente de distância nem cotação garantida no ba
 Nenhuma regra antiga foi aplicada. Esta adaptação é destinada somente à branch de revisão `teste-sem-blaze`, sem alterar a `main` ou o Firebase. O commit anterior segue preservado como referência histórica da variante com Functions.
 
 
-Preparação Pages local: pacote mínimo em `docs/`, manifesto e regras completas para revisão. Há seis testes novos de compatibilidade. Atualizações de corridas exigem `schemaVersion: 2`; pedidos antigos não são migrados. A garantia de reserva única vale para o fluxo novo, não substitui inventário/tratamento de corridas antigas ativas sem reserva. Não reutilizar contas nessas condições. Teste físico com duas contas novas continua pendente.
+Preparação Pages local: pacote mínimo em `docs/`, manifesto e regras completas para revisão. Há seis testes novos de compatibilidade. Novas criações exigem `schemaVersion: 3`; atualizações aceitam 2 ou 3; pedidos antigos não são migrados. A garantia de reserva única vale para o fluxo novo, não substitui inventário/tratamento de corridas antigas ativas sem reserva. Não reutilizar contas nessas condições. Teste físico com duas contas novas continua pendente.
 
 
 Cancelamento antes do embarque agora está implementado para os dois participantes com confirmação, auditoria e liberação transacional. Canceladas entram no histórico. Destaque de corrida ativa implementado. Testes incluem aceitar/cancelar, embarcar/cancelar e dois cancelamentos. O cancelamento de legados sem schemaVersion continua bloqueado; recuperação administrativa, cancelamento após embarque e teste físico permanecem pendentes. Regras não aplicadas automaticamente nesta sessão, por ausência de autenticação Firebase.
+
+Proteção do passageiro implementada no protocolo 3: uma reserva persistente por UID, pareada com criação/liberação nas regras e transações. Recarga e outra sessão não habilitam pedido enquanto ocupado. Pendente no serviço real: aplicação das novas regras, inventário/inicialização autorizada de perfis antigos e testes físicos. Contas antigas sem controle ficam bloqueadas, sem exclusão automática. Ver `ATUALIZACAO-PASSAGEIRO.md`.

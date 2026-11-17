@@ -1,10 +1,10 @@
-# Regras completas para copiar — arquivo ASCII
+# Regras completas para copiar — protocolo 3
 
-A sintaxe e os identificadores devem permanecer exatamente como abaixo. Desative a tradução automática da página antes de copiar; use o botão de copiar do bloco. O editor Firestore aceita `service`, `function`, `match`, `allow` e demais palavras da linguagem em inglês. Os nomes de coleções/campos e valores como `solicitada`/`cancelada` pertencem ao aplicativo e também não devem ser traduzidos.
+**Esta atualização muda as permissões e precisa ser aplicada separadamente no Firebase. Não foi aplicada nesta sessão.** Leia antes `ATUALIZACAO-PASSAGEIRO.md`: contas antigas sem controle exigem conferência; novas criações pelo cliente schema 2 serão negadas. Não apague duplicados.
 
-Arquivo integral, sem comentários e sem caracteres não ASCII. Nenhuma mudança nas permissões da versão anterior. Esta cópia não foi aplicada ao Firebase. Publicar o arquivo no GitHub/Pages não publica as regras no Firebase.
+Desative a tradução automática antes de copiar. Substitua o texto completo do editor de Regras do Firestore pelo bloco abaixo, sem o título nem as cercas de Markdown. A primeira linha é `rules_version = '2';` e a segunda é `service cloud.firestore {`. Palavras como `service`, `function`, `match` e `allow` não podem ser traduzidas. Nomes de campos/coleções e valores também devem permanecer exatos.
 
-SHA-256 de `firestore.rules`: `cca0f2fee6128e6ecef8925c7a7c085a4fec0f5d8aad967e279af68a3ddb4bd9`.
+Arquivo integral ASCII, validado no Emulator pela suíte desta revisão. SHA-256 de `firestore.rules`: `0623ad0f9b10b79ea9e9fd49d34028c2c0a821a8a8d3edd3a98f729369a0f0e8`. Este bloco reproduz exatamente o arquivo. Publicar no GitHub/Pages não aplica regras no Firebase.
 
 ```text
 rules_version = '2';
@@ -13,7 +13,8 @@ service cloud.firestore {
   function signed() { return request.auth != null; }
   function own(u) { return signed() && request.auth.uid == u; }
   function role(u,t) { return get(/databases/$(database)/documents/perfis/$(u)).data.tipo == t; }
-  function free(u) { return !exists(/databases/$(database)/documents/motoristas_ativos/$(u)) && !existsAfter(/databases/$(database)/documents/motoristas_ativos/$(u)); }
+  function passengerFree(u) { return (!exists(/databases/$(database)/documents/passageiros_ativos/$(u)) || get(/databases/$(database)/documents/passageiros_ativos/$(u)).data.rideId == null) && (!existsAfter(/databases/$(database)/documents/passageiros_ativos/$(u)) || getAfter(/databases/$(database)/documents/passageiros_ativos/$(u)).data.rideId == null); }
+  function free(u) { return passengerFree(u) && !exists(/databases/$(database)/documents/motoristas_ativos/$(u)) && !existsAfter(/databases/$(database)/documents/motoristas_ativos/$(u)); }
   function point(p) { return p is map && p.keys().hasOnly(['lat','lng']) && p.lat is number && p.lng is number && p.lat >= -90 && p.lat <= 90 && p.lng >= -180 && p.lng <= 180; }
   function availabilityAfter(u,value) { return getAfter(/databases/$(database)/documents/disponibilidades/$(u)).data.disponivel == value; }
   function pairedAccept(u,id) {
@@ -40,19 +41,41 @@ service cloud.firestore {
   function pairedCancel(u,id) {
    let before = get(/databases/$(database)/documents/corridas_teste/$(id)).data;
    let after = getAfter(/databases/$(database)/documents/corridas_teste/$(id)).data;
-   return before.get('schemaVersion',0) == 2 && before.driverId == u && before.status == 'aceita'
+   return before.get('schemaVersion',0) in [2,3] && before.driverId == u && before.status == 'aceita'
     && after.status == 'cancelada' && validCancellation(after,before)
     && get(/databases/$(database)/documents/motoristas_ativos/$(u)).data.rideId == id
     && !existsAfter(/databases/$(database)/documents/motoristas_ativos/$(u));
   }
   function cancelUpdate(before,after,id) {
-   return before.get('schemaVersion',0) == 2 && after.status == 'cancelada'
+   return before.get('schemaVersion',0) in [2,3] && after.status == 'cancelada'
     && after.diff(before).affectedKeys().hasOnly(['status','updatedAt','cancellation'])
     && after.updatedAt == request.time && validCancellation(after,before)
     && ((before.status == 'solicitada' && request.auth.uid == before.passengerId)
      || (before.status == 'aceita' && pairedCancel(before.driverId,id)
       && availabilityAfter(before.driverId,true)
       && getAfter(/databases/$(database)/documents/disponibilidades/$(before.driverId)).data.atualizadoEm == request.time));
+  }
+  function passengerHeld(u,id) {
+   return get(/databases/$(database)/documents/passageiros_ativos/$(u)).data.rideId == id
+    && getAfter(/databases/$(database)/documents/passageiros_ativos/$(u)).data.rideId == id;
+  }
+  function passengerReleased(u,id) {
+   return get(/databases/$(database)/documents/passageiros_ativos/$(u)).data.rideId == id
+    && getAfter(/databases/$(database)/documents/passageiros_ativos/$(u)).data.rideId == null
+    && getAfter(/databases/$(database)/documents/passageiros_ativos/$(u)).data.updatedAt == request.time;
+  }
+  function passengerTransition(before,after,id) {
+   return before.get('schemaVersion',0) == 2
+    || (before.get('schemaVersion',0) == 3
+     && ((after.status in ['recusada','cancelada','concluida'] && passengerReleased(before.passengerId,id))
+      || (after.status in ['aceita','embarcado'] && passengerHeld(before.passengerId,id))));
+  }
+  function passengerTerminal(u,id) {
+   let before = get(/databases/$(database)/documents/corridas_teste/$(id)).data;
+   let after = getAfter(/databases/$(database)/documents/corridas_teste/$(id)).data;
+   return signed() && before.schemaVersion == 3 && before.passengerId == u
+    && before.status in ['solicitada','aceita','embarcado'] && after.status in ['recusada','cancelada','concluida']
+    && (request.auth.uid == before.passengerId || request.auth.uid == before.driverId);
   }
   function validConfig(c) {
    return c.keys().hasOnly(['base','vehicle','emptyRateCents','occupiedRateCents','version','updatedAt','position','positionAt'])
@@ -77,6 +100,7 @@ service cloud.firestore {
   match /perfis/{u} {
    allow read: if own(u);
    allow create, update: if own(u) && free(u)
+    && (exists(/databases/$(database)/documents/perfis/$(u)) || getAfter(/databases/$(database)/documents/passageiros_ativos/$(u)).data.rideId == null)
     && request.resource.data.keys().hasOnly(['nome','tipo','veiculo','atualizadoEm'])
     && request.resource.data.keys().hasAll(['nome','tipo','veiculo','atualizadoEm'])
     && request.resource.data.nome is string && request.resource.data.nome.size() >= 2 && request.resource.data.nome.size() <= 70
@@ -108,7 +132,10 @@ service cloud.firestore {
    allow read: if signed() && (resource.data.passengerId == request.auth.uid || resource.data.driverId == request.auth.uid);
    allow create: if signed() && request.resource.data.passengerId == request.auth.uid && role(request.auth.uid,'passageiro')
     && request.resource.data.keys().hasOnly(['schemaVersion','passengerId','driverId','status','service','pickup','destination','pickupLabel','destinationLabel','estimate','createdAt','updatedAt'])
-    && request.resource.data.schemaVersion == 2
+    && request.resource.data.schemaVersion == 3
+    && get(/databases/$(database)/documents/passageiros_ativos/$(request.auth.uid)).data.rideId == null
+    && getAfter(/databases/$(database)/documents/passageiros_ativos/$(request.auth.uid)).data.rideId == id
+    && getAfter(/databases/$(database)/documents/passageiros_ativos/$(request.auth.uid)).data.updatedAt == request.time
     && request.resource.data.driverId is string && request.resource.data.driverId != request.auth.uid && role(request.resource.data.driverId,'motorista')
     && request.resource.data.status == 'solicitada' && request.resource.data.estimate == null
     && request.resource.data['service'] in ['carro','moto','frete']
@@ -119,9 +146,10 @@ service cloud.firestore {
     && request.resource.data.pickupLabel is string && request.resource.data.pickupLabel.size() >= 3 && request.resource.data.pickupLabel.size() <= 120
     && request.resource.data.destinationLabel is string && request.resource.data.destinationLabel.size() >= 3 && request.resource.data.destinationLabel.size() <= 120
     && request.resource.data.createdAt == request.time && request.resource.data.updatedAt == request.time;
-   allow update: if cancelUpdate(resource.data,request.resource.data,id);
+   allow update: if cancelUpdate(resource.data,request.resource.data,id) && passengerTransition(resource.data,request.resource.data,id);
    allow update: if own(resource.data.driverId) && role(resource.data.driverId,'motorista')
-    && resource.data.get('schemaVersion',0) == 2
+    && resource.data.get('schemaVersion',0) in [2,3]
+    && passengerTransition(resource.data,request.resource.data,id)
     && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','updatedAt','estimate'])
     && request.resource.data.updatedAt == request.time
     && ((resource.data.status == 'solicitada' && request.resource.data.status == 'aceita'
@@ -144,7 +172,24 @@ service cloud.firestore {
    allow delete: if signed() && availabilityAfter(u,true)
     && ((own(u) && role(u,'motorista') && pairedFinish(u,resource.data.rideId)) || pairedCancel(u,resource.data.rideId));
   }
-  match /system_capabilities/{id} { allow get: if signed() && id == 'cancellation-v1'; }
+  match /passageiros_ativos/{u} {
+   allow read: if own(u);
+   allow create: if own(u) && !exists(/databases/$(database)/documents/perfis/$(u))
+    && getAfter(/databases/$(database)/documents/perfis/$(u)).data.tipo in ['passageiro','motorista']
+    && request.resource.data.keys().hasOnly(['rideId','updatedAt'])
+    && request.resource.data.keys().hasAll(['rideId','updatedAt'])
+    && request.resource.data.rideId == null && request.resource.data.updatedAt == request.time;
+   allow update: if signed()
+    && request.resource.data.keys().hasOnly(['rideId','updatedAt'])
+    && request.resource.data.keys().hasAll(['rideId','updatedAt']) && request.resource.data.updatedAt == request.time
+    && ((own(u) && role(u,'passageiro') && resource.data.rideId == null && request.resource.data.rideId is string
+      && !exists(/databases/$(database)/documents/corridas_teste/$(request.resource.data.rideId))
+      && getAfter(/databases/$(database)/documents/corridas_teste/$(request.resource.data.rideId)).data.passengerId == u
+      && getAfter(/databases/$(database)/documents/corridas_teste/$(request.resource.data.rideId)).data.schemaVersion == 3
+      && getAfter(/databases/$(database)/documents/corridas_teste/$(request.resource.data.rideId)).data.status == 'solicitada')
+     || (resource.data.rideId is string && request.resource.data.rideId == null && passengerTerminal(u,resource.data.rideId)));
+  }
+  match /system_capabilities/{id} { allow get: if signed() && id in ['cancellation-v1','passenger-single-v1']; }
   match /{document=**} { allow read, write: if false; }
  }
 }

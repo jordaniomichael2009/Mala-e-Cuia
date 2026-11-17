@@ -4,7 +4,7 @@
 
 - `npm run test:unit`: 6 testes de sincronização aprovados. Bloqueio durante leitura, offline, troca de conta, conta nova sem padrões, rejeição/recarregamento de versão antiga e configuração inválida.
 - `npm run test:browser`: aprovado com três sessões móveis de Chromium, viewport 390 × 844. Executa `firestore-client.js` com SDK/transporte simulado; restaura config por UID, ignora cache antigo, unifica Conta/Painel, recusa salvamento antigo e exercita pedido/aceite/embarque/conclusão/histórico. Todos os serviços externos são interceptados. A configuração de GPS igual ao embarque gera trecho vazio de ida zero; estimativa final desse teste é R$ 37,00.
-- `npm run test:emulator`: **35 testes aprovados**, código 0. Projeto `demo-mala-e-cuia`, 127.0.0.1, Firestore Emulator 1.19.8/Java 21. Usa o SDK cliente com as novas regras; NÃO usa Admin SDK/Cloud Functions para executar as operações de negócio.
+- `npm run test:emulator`: **44 testes aprovados**, código 0. Projeto `demo-mala-e-cuia`, 127.0.0.1, Firestore Emulator 1.19.8/Java 21. Usa o SDK cliente com as novas regras; NÃO usa Admin SDK/Cloud Functions para executar as operações de negócio.
 - Build estático e sintaxe JS/JSON verificados; CSS original preservado.
 
 ## O que o Emulator confirmou
@@ -74,3 +74,11 @@ A CLI confirmou ausência de usuário Firebase autenticado. Regras não foram ap
 35. GPS expirado produz erro de verificação com orientação, sem aceite silencioso.
 
 O teste Pages também atrasa o commit e silencia a consulta do motorista: não mostra Aceita nem abre Maps antes da confirmação; após reconhecimento troca os controles mesmo sem o listener. A leitura de revalidação é atrasada para provar a atualização imediata. Testa snapshot antigo, leitura que falha após commit, Maps automático e alternativa manual, e mantém o painel do passageiro nas etapas Solicitada/Aceita/Embarcado. Ver `DIAGNOSTICO-ACEITE.md`.
+
+## Proteção do passageiro — protocolo 3 (17/11/2026)
+
+- **44/44 no Firestore Emulator**, saída 0: inclui os casos anteriores de preço/aceite/cancelamento, nove casos novos de perfil/controle pareados, duas sessões SDK independentes concorrentes (só uma criação), escrita direta sem reserva, schema 2 novo negado, dois pedidos no lote, reserva apagada/resetada/substituída, papel alterado enquanto ocupado, acesso indevido, bloqueio nos estados solicitado/aceito/embarcado, liberação terminal pareada, conta antiga sem autoinicialização, duplicados preservados e compatibilidade da sondagem. Uma rejeição de corrida concorrente pode vir das regras como permission-denied; o cliente relê a reserva e informa active-ride sem apresentar sucesso.
+- **6/6 testes unitários** de configuração continuam aprovados.
+- **Navegador/Pages aprovado** com SDK e rede simulados: eventos repetidos no mesmo instante, commit atrasado mantendo Enviando, uma criação, espera sem botão, outro aparelho simulado, recarga, aceite/viagem, liberação por recusa/cancelamento/conclusão, falha de permissão, reconhecimento perdido após commit com releitura que mantém o bloqueio, cache vazio sem liberar envio e bloqueio sob regras antigas/conta sem revisão.
+- O teste no caminho `/Mala-e-Cuia/` usa exatamente `docs/`, gerado pelo build e registrado no manifesto.
+- Não houve teste físico, Auth de produção, leitura de dados reais, aplicação das regras ou inicialização de contas no Firebase real. Nenhum duplicado real foi excluído. Aplicar regras/inicializar perfis antigos e testar fisicamente continua pendente.
