@@ -1,19 +1,27 @@
-# Mala e Cuia 3.0 — pacote local
+# Mala e Cuia 3.0 — revisão Spark, sem Cloud Functions
 
-Nenhuma publicação ou alteração no Firebase real foi realizada. Tudo neste pacote é código local para revisão e testes.
+Revisão preparada para a branch `teste-sem-blaze`. Não houve merge, publicação no Pages, deploy ou modificação no Firebase real nesta adaptação.
 
-## Conteúdo
+Usa Firebase Authentication (E-mail/Senha), Firestore com transações do SDK cliente e regras de segurança. Não requer Cloud Functions ou Blaze para este fluxo de teste dentro das cotas do plano Spark. CSS original preservado.
 
-- `index.html` e `driver-settings.js`: interface existente e configuração da conta unificada.
-- `functions/`: backend callable, reserva transacional e preço dos três trajetos.
-- `firestore.rules`: proposta de regras com escritas de corridas/configuração/reservas restritas ao backend.
-- `tests/`: testes de serviço em memória, sincronização, navegador e Firestore Emulator.
-- `CONFIGURACAO-E-PUBLICACAO.md`: instalação e futura publicação, sem comandos executados contra produção.
-- `TESTES-DOIS-CELULARES.md`, `RESULTADOS-DOS-TESTES.md`, `AUDITORIA-GARANTIAS.md`, `STATUS-E-LIMITES.md`.
+## Arquivos principais
 
-## Comandos locais
+- `index.html`: interface existente e listeners em tempo real, sem importação de Functions.
+- `firestore-client.js`: criação de solicitações, sincronização da conta, aceite/reserva, embarque e conclusão/liberação.
+- `driver-settings.js`: tarifas/base da conta, carregamento obrigatório do servidor e proteção contra salvamento antigo.
+- `firestore.rules`: **NOVAS regras propostas desta adaptação**. As anteriores, que proibiam todas as escritas do cliente, não servem para esta versão. Nenhuma regra foi aplicada ao projeto real.
+- `tests/emulator.test.cjs`: SDK cliente real contra Firestore Emulator, incluindo tentativas de burlar operações.
+- Documentos: `AUDITORIA-GARANTIAS.md`, `RESULTADOS-DOS-TESTES.md`, `STATUS-E-LIMITES.md`, `TESTES-DOIS-CELULARES.md` e `CONFIGURACAO-E-PUBLICACAO.md`.
 
-Node 22 (alvo das funções), npm e Java 21 para o emulador. Dependências fixadas em `package-lock.json` e `functions/package-lock.json`.
+## Preço é somente estimativa
+
+A solicitação nasce sem estimativa. O celular do motorista calcula os três trajetos **no aceite** usando sua própria configuração privada. O passageiro vê o total/distâncias após o aceite, sem acesso à base ou ao GPS privado do motorista.
+
+As regras validam as tarifas da conta, os limites/tipos das distâncias, o arredondamento e a fórmula. **As distâncias calculadas pelo cliente não são verificadas por servidor.** Distâncias falsas com fórmula consistente podem passar; há um teste explícito desse limite. Não é cotação garantida nem cobrança.
+
+## Executar localmente
+
+Node 22+ e Java 21 para o Emulator. `package-lock.json` fixa as dependências de desenvolvimento.
 
 ```sh
 npm ci
@@ -23,6 +31,6 @@ npm run test:emulator
 npm run build:web
 ```
 
-O teste de navegador usa `/usr/bin/chromium` se existir; em outro sistema utiliza Chromium instalado com `npx playwright install chromium`.
+O navegador usa Chromium do sistema ou o instalado com `npx playwright install chromium`. O teste de navegador intercepta toda a rede. O de regras usa somente o projeto local `demo-mala-e-cuia`; não exige login Firebase. Abrir o HTML manualmente usa a configuração original do Firebase: não o faça para teste isolado sem os mocks ou sem autorização para o ambiente correspondente.
 
-O teste de emulador usa somente `demo-mala-e-cuia` e localhost. Não precisa de login Firebase. Não executar testes com ID de produção. O teste de navegador intercepta todas as requisições e não abre o Firebase real. Abrir o HTML manualmente sem mocks usa a configuração original do projeto, portanto não é o método de teste local seguro deste pacote.
+`build:web` gera somente os três arquivos públicos em `web-dist`, sem backend. Não há configuração `functions` em `firebase.json`.

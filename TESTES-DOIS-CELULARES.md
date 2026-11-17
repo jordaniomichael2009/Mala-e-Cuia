@@ -1,48 +1,40 @@
-# Roteiro de testes
+# Roteiro de revisão e testes — Spark
 
-## Execução local sem acessar Firebase real
+## Primeiro, somente testes locais
 
 ```sh
 npm ci
 npm run test:unit
 npm run test:browser
 npm run test:emulator
+npm run build:web
 ```
 
-O teste de unidade usa memória/rotas determinísticas. O de navegador abre três sessões móveis e intercepta todo tráfego externo. O de Emulator usa regras e transações do Firestore Emulator em `demo-mala-e-cuia`, com guardas contra execução fora de localhost. Não é preciso login Firebase para o Emulator.
+Não executar deploy nem push. Revisar `firestore-client.js`, `driver-settings.js` e as **novas** `firestore.rules`. As regras da versão anterior não permitem este fluxo e não devem ser aplicadas.
 
-`RESULTADOS-DOS-TESTES.md` descreve a execução aprovada. Para cache e instalação dos navegadores, consultar `CONFIGURACAO-E-PUBLICACAO.md`.
+## Cenário físico futuro, após autorização
 
-## Antes do teste físico
+1. Usar HTTPS, Authentication E-mail/Senha e Firestore de um projeto de teste, sem Functions. Confirmar que cliente/regras propostos foram revisados e autorizados juntos.
+2. A: perfil Passageiro. B: outra conta com perfil Motorista e veículo. Aguardar restauração da configuração de B antes de editar. Sem dados no servidor, preencher tarifas e base explicitamente.
+3. B: obter GPS, definir base, salvar configuração da conta e marcar disponível. Copiar UID.
+4. A: obter GPS e destino. Selecionar serviço compatível, inserir UID de B e referências. Enviar pedido. A solicitação deve aparecer em B com estimativa ainda ausente.
+5. B: aceitar. O navegador consulta três rotas e tenta uma transação que cria a reserva, marca indisponível e salva a estimativa. A deve ver motorista a caminho e o valor marcado como estimativa de distâncias do cliente. Maps abre até o embarque.
+6. B: voltar ao navegador, confirmar embarque, abrir Maps até destino e finalizar. Conclusão precisa remover a reserva e restaurar disponibilidade na mesma transação. Histórico aparece nos dois papéis.
+7. Novo pedido: recusar; não pode reservar motorista nem liberar outra corrida ativa.
 
-Não publicar/deployar sem nova confirmação. Revisar regras existentes, dependências e projeto/região. O HTML precisa das funções correspondentes; o novo frontend não faz escrita direta alternativa se o backend falhar. Não abrir manualmente o HTML como teste isolado supondo que usa Emulator: o projeto original continua configurado no HTML. Os testes automatizados bloqueiam acesso ao Firebase real.
+## Sincronização em terceiro aparelho
 
-## Sincronização entre aparelhos
+Entrar com a mesma conta do motorista em C, mesmo com valores antigos no navegador. Antes de carregar o servidor, os campos devem estar bloqueados. Tarifas e base devem vir da conta. Alterar tarifa na Conta deve refletir no Painel. B com versão antiga não pode substituir os valores salvos por C; deve recarregar e exigir nova confirmação.
 
-1. A é o passageiro; B e C representam a mesma conta de motorista em aparelhos diferentes. Usar somente contas/dados de teste.
-2. No primeiro login do motorista, aguardar a leitura da configuração. Durante essa espera, tarifas, base e salvamento devem estar bloqueados. Falha de leitura deve mantê-los bloqueados; usar Recarregar configuração da conta para tentar novamente.
-3. Se não existir configuração, as tarifas/base devem começar vazias. Nenhum valor antigo do navegador pode ser salvo automaticamente.
-4. B: Conta → salvar perfil Motorista. Painel Motorista → definir duas tarifas, obter GPS e definir base. Salvar configuração da conta e atualizar GPS.
-5. C: entrar na mesma conta. Conferir restauração de tarifas e base de B, mesmo que C já tenha valores antigos em localStorage. Entrar não pode criar nova versão nem gravar padrões.
-6. C: alterar tarifa na Conta. O mesmo valor deve aparecer no Painel. Salvar perfil/configuração. Em B, tentar salvar uma alteração sem recarregar: deve falhar por versão antiga, carregar valores de C e exigir nova edição deliberada. Não pode restaurar os valores antigos de B no servidor.
-7. Após recarregar a versão atual em B, editar e salvar deve funcionar. Alterar base também deve respeitar a mesma versão. Uma mudança só de tarifas/base não deve renovar artificialmente o horário do GPS existente.
+## Tentativas de burlar
 
-## Fluxo de corrida após implantação autorizada
+- Aceitar dois pedidos simultaneamente em B e C: uma única reserva e uma única corrida aceita.
+- Enviar lote com duas corridas aceitas e só uma reserva: negar tudo.
+- Aceite sem reserva/disponibilidade, reserva isolada, conclusão sem liberar ou liberação sem concluir: negar tudo.
+- Trocar motorista/passageiro, coordenadas, serviço, preço ou etapa indevida: negar. Terceiro não lê nem altera corrida/configuração privada.
+- Alterar tarifas/base, perfil ou reativar disponibilidade durante corrida ativa: negar.
+- Alterar tarifas da estimativa ou total sem obedecer à fórmula/versão: negar.
+- **Limite esperado:** distâncias falsas mas numericamente válidas com a fórmula correta podem ser aceitas. Não existe servidor verificando rotas nesta variante. Isso não pode ser apresentado como preço garantido.
+- Falha de rede/rotas ou GPS desatualizado no aceite deve manter solicitação sem reserva parcial.
 
-1. A: salvar perfil Passageiro. B: salvar perfil Motorista, obter GPS, base e tarifas, confirmar configuração no servidor e marcar disponível.
-2. A: obter GPS, selecionar UF/cidade e destino pela busca. No painel integrado, informar UID de B e referências. Selecionar serviço compatível e enviar pedido.
-3. Conferir a cotação devolvida pelo servidor: `(motorista → embarque + destino → base) × tarifa vazia + (embarque → destino) × tarifa ocupada`. As distâncias manuais da simulação não definem o preço da corrida.
-4. B: aceitar. A deve ver motorista a caminho; B deve ficar reservado/indisponível e Maps deve abrir até o embarque. Voltar ao navegador.
-5. B: confirmar embarque. A vê Em viagem; Maps abre destino. Voltar ao navegador e finalizar.
-6. A e B: corrida concluída, histórico atualizado; B disponível e sem reserva. Recarregar para conferir persistência.
-7. Em novo pedido, recusar: status Recusada, sem reserva e sem abrir Maps.
-
-## Segurança e concorrência
-
-- Antes de aceitar, criar dois pedidos para B. Aceitar quase simultaneamente em B e C: somente um deve ficar aceito e uma reserva deve existir. O outro deve receber erro sem avançar etapa.
-- Durante corrida ativa, cliente não pode mudar perfil/disponibilidade nem apagar reserva. Finalizar deve liberar tudo na mesma transação.
-- Tentar escrita direta em corridas/config/reservas, incluindo preço, participantes e status: deve negar. Terceiros não podem ler a corrida ou configuração privada.
-- Chamar função de etapa com outra conta ou saltar etapa deve falhar. Cotação após dez minutos e GPS após quinze minutos exigem atualização/nova solicitação conforme o caso.
-- Enviar preço/tarifa/distância adulterados pelo passageiro: backend deve ignorar e calcular de sua configuração/rotas. Exemplo simulado: três trechos de 10 km, R$ 1,20 vazio, R$ 2,50 ocupado → R$ 49,00.
-- Testar GPS negado, rede indisponível e erro de rota: sem avanço silencioso ou alternativa de escrita insegura.
-- Registrar aparelhos, navegadores, versão, etapa e códigos de erro; não registrar senhas. Corrida abandonada/cancelamento ainda não possuem recuperação administrativa neste protótipo.
+Registrar aparelho, navegador, versão, etapa e código do erro sem registrar senha. Não usar este protótipo para transporte comercial; faltam cancelamento/recuperação e validação física.

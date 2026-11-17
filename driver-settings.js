@@ -6,7 +6,7 @@ export function createDriverSettings({readServer,writeServer,render}) {
  const reset=uid=>Object.assign(state,{uid,loaded:false,busy:false,version:null,draft:null,dirty:false,error:''});
  async function load(uid){const generation=++token;reset(uid);emit();if(!uid)return;
  try{const config=await readServer(uid);if(generation!==token)return;
- if(config){const p=config.base;const validRate=n=>Number.isInteger(n)&&n>=0&&n<=10000;if(typeof config.version!=='string'||!config.version||!p||typeof p.lat!=='number'||typeof p.lng!=='number'||!Number.isFinite(p.lat)||!Number.isFinite(p.lng)||Math.abs(p.lat)>90||Math.abs(p.lng)>180||!validRate(config.emptyRateCents)||!validRate(config.occupiedRateCents)||!['carro','moto','frete'].includes(config.vehicle))throw Error('Configuração do servidor inválida; nenhuma substituição automática será feita.');}
+ if(config){const p=config.base;const validRate=n=>Number.isInteger(n)&&n>=0&&n<=10000;if(!Number.isInteger(config.version)||config.version<1||!p||typeof p.lat!=='number'||typeof p.lng!=='number'||!Number.isFinite(p.lat)||!Number.isFinite(p.lng)||Math.abs(p.lat)>90||Math.abs(p.lng)>180||!validRate(config.emptyRateCents)||!validRate(config.occupiedRateCents)||!['carro','moto','frete'].includes(config.vehicle))throw Error('Configuração do servidor inválida; nenhuma substituição automática será feita.');}
  state.version=config?.version??null;
  state.draft=config?{emptyRate:config.emptyRateCents/100,occupiedRate:config.occupiedRateCents/100,base:config.base,vehicle:config.vehicle}:{emptyRate:'',occupiedRate:'',base:null,vehicle:null};state.loaded=true;
  }catch(e){if(generation!==token)return;state.error='Não foi possível carregar a configuração do servidor. Alterações bloqueadas. '+e.message;}

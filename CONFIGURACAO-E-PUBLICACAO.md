@@ -1,59 +1,52 @@
-# Configuração e publicação futura
+# Configurar e revisar a variante sem Blaze/Cloud Functions
 
-**Publicação não autorizada nesta etapa. Os comandos de deploy abaixo são instruções para uso somente após confirmação. Nenhum foi executado.**
+## Estado atual
 
-## Preparar a cópia local
+Código preparado para revisão na branch `teste-sem-blaze`, sem merge, deploy, publicação no Pages ou alteração do Firebase real. A branch `teste-mala-cuia-3`, commit `7f60b97`, preserva a versão anterior com Functions.
 
-1. Extrair o ZIP preservando as pastas. Instalar Node 22, npm e Java 21. A validação desta revisão utilizou Node 24.22.1 e Java 21; as funções têm Node 22 como alvo de deploy.
-2. Na raiz, executar `npm ci`. Em `functions/`, executar `npm ci`. Ambos possuem lockfiles. Não incluir `node_modules` na publicação.
-3. Para o navegador, usar Chromium do sistema (`/usr/bin/chromium`) ou executar `npx playwright install chromium` para instalar o navegador do Playwright.
-4. Executar os testes de unidade, navegador e emulador conforme README. O emulador pode baixar seu JAR na primeira execução; exige acesso ao servidor de distribuição e Java. Usar o ID `demo-mala-e-cuia`, nunca o projeto real.
-5. Se o ambiente bloquear o cache no diretório do usuário, apontar `npm --cache`, `FIREBASE_EMULATORS_PATH` e `XDG_CONFIG_HOME` para diretórios locais graváveis. Exemplo em Linux:
+## Configuração local
+
+1. Instalar Node 22+ e Java 21. Na raiz, executar `npm ci`.
+2. Se não houver Chromium de sistema, executar `npx playwright install chromium`.
+3. Executar `npm run test:unit`, `npm run test:browser`, `npm run test:emulator` e `npm run build:web`.
+4. O Emulator usa somente `demo-mala-e-cuia` e `127.0.0.1`, com proteção contra execução da suíte em projeto real. Pode baixar o JAR na primeira execução. Não precisa de login Firebase, Functions ou Blaze.
+5. Em ambiente com cache restrito, apontar caches para diretórios graváveis:
 
 ```sh
 FIREBASE_EMULATORS_PATH="$PWD/.emulator-cache" XDG_CONFIG_HOME="$PWD/.firebase-cli-config" npm run test:emulator
 ```
 
-Esses diretórios são temporários e não fazem parte do app.
+O teste de navegador usa mocks para todo tráfego externo. O de Emulator usa transações reais do SDK cliente e regras reais no emulador. Não abrir o HTML diretamente supondo que está conectado ao Emulator: o HTML mantém a configuração original do Firebase; a abertura manual não está configurada automaticamente para emuladores.
 
-## Modelo único da configuração
+## Esquema proposto
 
-- Fonte oficial: `config_motoristas/{uid}`, com duas tarifas em centavos, base, tipo de veículo, versão e última posição.
-- Os campos de tarifa da Conta e do Painel editam o mesmo rascunho. A Conta salva esse rascunho ao salvar o perfil; o botão do Painel salva e atualiza o GPS.
-- O login usa `getDocFromServer`. Enquanto a leitura não terminar, tarifas, seleção da base e salvamento ficam bloqueados. Falha/offline/configuração inválida mantém o bloqueio. Não há restauração automática de tarifas/base do localStorage.
-- Documento inexistente significa cadastro novo: os valores ficam vazios, sem preço ou base padrão gravados automaticamente.
-- Cada gravação exige `expectedVersion`. Uma versão antiga é rejeitada na transação, e o cliente restaura os dados atuais; o usuário precisa conferir e reaplicar uma mudança deliberadamente.
-- Atualizar tarifas/base sem atualizar o GPS preserva o horário da última posição. A regra dos 15 minutos continua valendo para solicitar corrida.
+- `perfis/{uid}`: nome, tipo autodeclarado, veículo e timestamp.
+- `config_motoristas/{uid}`: base, posição, horário da posição, tarifas em centavos, veículo, versão inteira e timestamp. Leitura/escrita só pelo titular, sem corrida ativa.
+- `disponibilidades/{uid}`: disponível e timestamp. Alteração durante aceite/conclusão exige os documentos pareados.
+- `corridas_teste/{id}`: participantes imutáveis, dados de embarque/destino, etapas e estimativa. Nasce sem estimativa; é calculada no celular do motorista no aceite.
+- `motoristas_ativos/{uid}`: reserva única por motorista. Só pode ser criada junto de um aceite e apagada junto da conclusão; não pode ser atualizada.
 
-## Migração de dados antigos — preparar, não executar
+A versão anterior de config usava UUID; esta usa versão inteira começando em 1. Dados antigos incompatíveis precisam de plano de migração explícito, ainda não executado. Não sobrescrever contas existentes com valores padrão. Documento antigo sem formato esperado mantém a tela bloqueada. Corridas antigas com `quote` ou status/reserva inconsistentes não foram migradas.
 
-O fluxo antigo gravava `tarifaVazio` e `tarifaOcupado` em `perfis`. Os campos canônicos agora ficam somente em `config_motoristas`. O novo formulário grava perfil com nome, tipo, veículo e timestamp; não grava tarifas duplicadas. Ao salvar um perfil antigo, a gravação substitui os campos antigos do documento.
+## Revisão obrigatória antes de propor aplicação
 
-Se já existir uma configuração válida por UID, ela é carregada como fonte oficial. Se só existirem tarifas no perfil antigo ou no navegador, NÃO são migradas automaticamente. O motorista deve preencher e confirmar explicitamente a configuração nova; qualquer migração em massa exige revisão e autorização. Uma configuração existente sem versão/formato válido mantém a tela bloqueada e exige migração administrativa deliberada. Nunca substituir por padrões.
+Comparar `firestore.rules` desta revisão com as regras existentes e testar em projeto de teste. **Não usar as regras anteriores com `allow write: if false` para corridas/config/reservas**: elas impedem este cliente de funcionar. Não aplicar nenhuma das versões agora.
 
-Corridas antigas sem cotação/reserva do fluxo novo não podem ser aceitas neste fluxo. Planejar migração ou recriar pedidos de teste; não editar preços ou reservas manualmente para contornar validações.
+A nova regra padrão nega outras coleções; avaliar dependências existentes antes de qualquer substituição. Revisar as três operações de aceite/conclusão e os testes adversariais. Conferir cotas do Spark, provedor Auth E-mail/Senha e domínios autorizados. Não é necessário migrar para Blaze para o fluxo proposto dentro das cotas gratuitas.
 
-## Revisão antes de publicação autorizada
+## Publicação futura — NÃO EXECUTADA E DEPENDE DE CONFIRMAÇÃO
 
-- Comparar `firestore.rules` com as regras do projeto existente. O arquivo proposto nega outras coleções por padrão; não o substituir sem avaliar dependências.
-- Conferir projeto configurado no HTML, região `southamerica-east1`, provedor Authentication E-mail/Senha e domínios autorizados. A região das funções e do cliente deve coincidir.
-- Verificar permissões IAM e requisitos de faturamento/quotas para Cloud Functions. O serviço de rotas público OSRM tem disponibilidade limitada e não foi consultado pelos testes.
-- Revisar a mudança simultânea de frontend, funções e regras; o frontend não utiliza escrita direta alternativa quando a função falha.
-- Guardar as versões atuais de regras/código para rollback. Uma reversão de regras não pode reabrir escritas inseguras em corridas/reservas.
-
-## Comandos somente para depois de confirmação
-
-O pacote não contém `.firebaserc` vinculando automaticamente a um projeto real. Substituir `ID_CONFIRMADO` somente após confirmar o projeto e a publicação.
+Não há `.firebaserc` vinculando automaticamente o repositório a um projeto. Depois de autorização explícita e revisão das regras, os comandos seriam:
 
 ```sh
 npm run build:web
 npx firebase login
-npx firebase deploy --project ID_CONFIRMADO --only functions,firestore:rules
+npx firebase deploy --project ID_CONFIRMADO --only firestore:rules
 npx firebase deploy --project ID_CONFIRMADO --only hosting
 ```
 
-`build:web` gera `web-dist` contendo somente `index.html` e `driver-settings.js`; não hospeda backend, regras ou testes. A configuração `firebase.json` já usa essa pasta. Os comandos de deploy NÃO foram executados nesta tarefa. Após publicação autorizada, realizar o roteiro físico em duas contas e conferir rollback/recuperação de corridas abandonadas antes de uso ampliado.
+Nunca executar `--only functions`; não há Functions nesta variante. `web-dist` contém somente HTML e os dois módulos públicos. Planejar janela e rollback de cliente/regras compatíveis, sem restaurar regras inseguras ou as antigas que bloqueiam todas as gravações.
 
-## Escopo dos testes do Emulator
+## Limite do preço
 
-Os testes executados compilam/aplicam as regras apenas no Firestore Emulator e chamam o serviço de domínio com o SDK Admin apontando para esse emulador. Exercitam transações reais do emulador, não o adaptador em memória. O wrapper callable, autenticação real, rede OSRM e hospedagem de produção não são exercitados por essa suíte.
+O celular do motorista calcula `GPS → embarque`, `embarque → destino` e `destino → base`. As regras validam tarifas, fórmula e limites numéricos, **não a veracidade das distâncias ou GPS**. Estimativa aparece ao passageiro após o aceite; não há aprovação prévia do valor pelo passageiro, pagamento ou cobrança. Não usar como preço garantido.

@@ -1,24 +1,22 @@
-# Situação dos 12 requisitos
+# Situação — variante sem Functions
 
-“Parcial” nesta tabela é a entrega operacional, considerando Firebase real e aparelhos físicos ainda não validados. A coluna de implementação/testes distingue o que foi efetivamente concluído localmente.
+Todos os itens permanecem parciais como entrega operacional, pois não houve teste físico ou aplicação no Firebase real. O quadro distingue implementação local e pendências de funcionalidade.
 
-| Nº | Requisito | Situação | Implementação e evidência local |
+| Nº | Requisito | Implementado e testado localmente | Pendente |
 |---|---|---|---|
-| 1 | Cadastro e login | Parcial | Auth E-mail/Senha, recuperação, logout e perfis implementados; sessão simulada. Auth real pendente. |
-| 2 | Veículos, tarifas e base | Parcial | Tarifas/base unificadas por UID, restauração antes da edição e rejeição de versões antigas implementadas/testadas em unidade, navegador e Emulator. Veículo tem apenas tipo, sem cadastro detalhado. |
-| 3 | Endereços/cidade/estado | Parcial | Nominatim sob demanda, autocomplete de cidades IBGE e seletor de UF; sem autocomplete de UF. Serviços simulados no navegador. |
-| 4 | GPS passageiro/motorista | Parcial | Captura pontual implementada e simulada; sem rastreamento contínuo. Físicos pendentes. |
-| 5 | Solicitação Firestore em tempo real | Parcial | Criação segura via backend e listeners implementados; fluxo no navegador simulado e dados/regras no Firestore Emulator testados. Rede callable/produção pendentes. |
-| 6 | Escolha manual ou automática | Parcial | Envio manual por UID implementado; catálogo público e despacho automático pendentes. |
-| 7 | Aceitar e recusar | Parcial | Implementados; reserva exclusiva e etapas testadas em transações concorrentes no Firestore Emulator. Físicos/produção pendentes. |
-| 8 | Maps até passageiro no aceite | Parcial | Link após sucesso do backend implementado. Navegação interceptada no teste; Maps nativo pendente. |
-| 9 | Embarque e Maps ao destino | Parcial | Etapa no backend e link implementados. Maps nativo pendente. |
-| 10 | Finalizar/liberar motorista | Parcial | Transação única implementada e testada no Emulator, inclusive rollback após falha. Físicos/produção pendentes. |
-| 11 | Histórico | Parcial | Histórico básico de concluídas/recusadas implementado e testado no navegador; sem filtros/paginação. |
-| 12 | Duas tarifas, três trajetos | Parcial | Cálculo backend com configuração única da conta e fórmula implementados. Preço adulterado ignorado em testes; regras bloqueiam preço adulterado no Emulator. OSRM real/físicos pendentes. |
+| 1 | Cadastro/login | Auth E-mail/Senha e perfis existentes, sessão simulada | Auth real e aparelhos físicos |
+| 2 | Veículos/tarifas/base | Config única por UID, restauração e versões; testes de unidade/navegador/Emulator | Cadastro detalhado do veículo e teste físico |
+| 3 | Endereços/cidade/estado | Busca de local, autocomplete de cidades, seletor UF | Autocomplete UF e serviços reais |
+| 4 | GPS | Captura pontual e posição privada sincronizada | GPS físico/contínuo; posição real não é atestada |
+| 5 | Solicitações em tempo real | Escrita direta Firestore e listeners; regras/cliente no Emulator | Firebase real e dois celulares físicos |
+| 6 | Manual/automático | Pedido manual por UID | Catálogo público e despacho automático |
+| 7 | Aceitar/recusar | SDK cliente + regras reservam motorista; concorrência e lotes maliciosos testados | Validação física/produção |
+| 8 | Maps até embarque | Link só após sucesso da transação | Maps nativo em aparelho |
+| 9 | Embarque/Maps destino | Etapa nas regras e link | Maps nativo em aparelho |
+| 10 | Conclusão/liberação | Transação pareada, exclusão de reserva e disponibilidade; testes de tentativa incompleta | Físicos; cancelamento/recuperação administrativa |
+| 11 | Histórico | Lista básica de concluídas/recusadas | Filtros/paginação/ganhos e teste físico |
+| 12 | Duas tarifas/três trajetos | **Estimativa do cliente**, tarifas/fórmula/versão validadas nas regras no aceite | Distâncias/GPS verificados por servidor **não implementados**; aprovação do preço pelo passageiro/pagamento não implementados |
 
-A pendência anterior de unificação/restauração de tarifas e base foi resolvida no código e nos testes locais. A pendência anterior de execução das regras e transações no Emulator também foi resolvida. Isso não significa publicação ou comprovação no Firebase real.
+Não existe validação independente de distância nem cotação garantida no backend. Sem Functions, esta revisão prioriza a segurança de participantes, reservas e etapas; o preço é explicitamente estimativa. A estimativa surge no aceite, para preservar a base privada do motorista.
 
-Posição do motorista é a última sincronizada, válida por até quinze minutos. Não há comprovação contra falsificação de GPS pelo dispositivo. As regras fornecidas negam outras coleções por padrão e precisam ser comparadas às regras existentes antes de qualquer implantação autorizada.
-
-Ver `AUDITORIA-GARANTIAS.md`, `RESULTADOS-DOS-TESTES.md` e `CONFIGURACAO-E-PUBLICACAO.md`.
+Nenhuma regra antiga foi aplicada. Esta adaptação é destinada somente à branch de revisão `teste-sem-blaze`, sem alterar a `main` ou o Firebase. O commit anterior segue preservado como referência histórica da variante com Functions.
