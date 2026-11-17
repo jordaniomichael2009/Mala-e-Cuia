@@ -44,3 +44,8 @@ Ler `PUBLICACAO-PAGES-REVISAO.md`, `COMPATIBILIDADE-LEGADOS.md` e `REGRAS-COMPLE
 ## Corrida ativa e cancelamento
 
 A corrida ativa aparece em destaque e antes do histórico. Passageiro cancela esperando ou após aceite; motorista cancela após aceite, sempre antes do embarque e com confirmação. Autoria e horário ficam no documento e no histórico; uma reserva existente é liberada na mesma transação. Ver `ATUALIZACAO-CANCELAMENTO.md` para aplicação das regras pelo console e sequência compatível de atualização. Sem as regras correspondentes, a interface mantém Cancelar desabilitado; não precisa criar documento de configuração.
+
+
+## Aceite e Maps
+
+Ver `DIAGNOSTICO-ACEITE.md`: progresso e erros no cartão, troca de controles somente após confirmação do Firestore, revalidação antes de abrir rota e link manual. Não foi necessária mudança nas permissões das regras.

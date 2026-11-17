@@ -4,7 +4,7 @@
 
 - `npm run test:unit`: 6 testes de sincronização aprovados. Bloqueio durante leitura, offline, troca de conta, conta nova sem padrões, rejeição/recarregamento de versão antiga e configuração inválida.
 - `npm run test:browser`: aprovado com três sessões móveis de Chromium, viewport 390 × 844. Executa `firestore-client.js` com SDK/transporte simulado; restaura config por UID, ignora cache antigo, unifica Conta/Painel, recusa salvamento antigo e exercita pedido/aceite/embarque/conclusão/histórico. Todos os serviços externos são interceptados. A configuração de GPS igual ao embarque gera trecho vazio de ida zero; estimativa final desse teste é R$ 37,00.
-- `npm run test:emulator`: **31 testes aprovados**, código 0. Projeto `demo-mala-e-cuia`, 127.0.0.1, Firestore Emulator 1.19.8/Java 21. Usa o SDK cliente com as novas regras; NÃO usa Admin SDK/Cloud Functions para executar as operações de negócio.
+- `npm run test:emulator`: **35 testes aprovados**, código 0. Projeto `demo-mala-e-cuia`, 127.0.0.1, Firestore Emulator 1.19.8/Java 21. Usa o SDK cliente com as novas regras; NÃO usa Admin SDK/Cloud Functions para executar as operações de negócio.
 - Build estático e sintaxe JS/JSON verificados; CSS original preservado.
 
 ## O que o Emulator confirmou
@@ -59,8 +59,18 @@ Os fixtures históricos foram extraídos dos formatos do código Git, não do ba
 30. Cliente Pages anterior continua criando/aceitando/embarcando/concluindo sob as regras novas; capacidade de cancelamento somente leitura.
 31. Sondagem da interface nova retorna indisponível sob as regras antigas fornecidas.
 
-Execução atual: 31 testes, 31 aprovados, Firestore Emulator 1.19.8/Java 21, dois projetos demo isolados para testar regras atuais/anteriores. Nenhuma operação contra Firebase real. Seis testes unitários de sincronização também aprovados.
+Execução da entrega de cancelamento: 31 testes, 31 aprovados, Firestore Emulator 1.19.8/Java 21, dois projetos demo isolados para testar regras atuais/anteriores. Nenhuma operação contra Firebase real. Seis testes unitários de sincronização também aprovados.
 
 `npm run test:pages` atual: fluxo principal com três sessões móveis mais uma sessão de compatibilidade com regras antigas. Verificou confirmação e desistência, cancelamento pendente/aceito pelo passageiro, aceito pelo motorista, ausência de Cancelar após embarque, destaque/ordenação, audit trail e histórico para ambos. Mensagens e transações do navegador usam mocks; a segurança das regras é validada separadamente no Emulator real.
 
 A CLI confirmou ausência de usuário Firebase autenticado. Regras não foram aplicadas automaticamente; entregues integralmente com SHA-256 e instruções no console. Push da interface está autorizado e atualizará o Pages; as regras são uma operação separada. Sem alteração de plano, exclusão de dados ou merge na main.
+
+
+## Correção de aceite e Maps
+
+32. Progresso e callback de confirmação ocorrem após reconhecimento do commit pelo Firestore; documento Aceita é conferido.
+33. Firestore `permission-denied` preserva Solicitada e não emite sucesso.
+34. Falha de rota identifica o trecho e preserva solicitação sem reserva.
+35. GPS expirado produz erro de verificação com orientação, sem aceite silencioso.
+
+O teste Pages também atrasa o commit e silencia a consulta do motorista: não mostra Aceita nem abre Maps antes da confirmação; após reconhecimento troca os controles mesmo sem o listener. A leitura de revalidação é atrasada para provar a atualização imediata. Testa snapshot antigo, leitura que falha após commit, Maps automático e alternativa manual, e mantém o painel do passageiro nas etapas Solicitada/Aceita/Embarcado. Ver `DIAGNOSTICO-ACEITE.md`.

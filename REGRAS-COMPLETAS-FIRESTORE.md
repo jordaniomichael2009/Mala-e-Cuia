@@ -1,15 +1,13 @@
-# Regras completas — cancelamento antes do embarque
+# Regras completas para copiar — arquivo ASCII
 
-Projeto de destino autorizado: mobilidademalaecuia. Não aplicadas automaticamente nesta sessão por ausência de autenticação Firebase. Compatíveis com o cliente anterior schemaVersion 2; seguir ATUALIZACAO-CANCELAMENTO.md para a sequência e o console. Não criar documento de capacidade.
+A sintaxe e os identificadores devem permanecer exatamente como abaixo. Desative a tradução automática da página antes de copiar; use o botão de copiar do bloco. O editor Firestore aceita `service`, `function`, `match`, `allow` e demais palavras da linguagem em inglês. Os nomes de coleções/campos e valores como `solicitada`/`cancelada` pertencem ao aplicativo e também não devem ser traduzidos.
 
-SHA-256 de firestore.rules: `20e6c767fe1de2110eac228de347b400a3a95e48a9532d6906d592cd403c8175`.
+Arquivo integral, sem comentários e sem caracteres não ASCII. Nenhuma mudança nas permissões da versão anterior. Esta cópia não foi aplicada ao Firebase. Publicar o arquivo no GitHub/Pages não publica as regras no Firebase.
 
-Distâncias continuam sendo estimativas do cliente, não verificadas por servidor.
+SHA-256 de `firestore.rules`: `cca0f2fee6128e6ecef8925c7a7c085a4fec0f5d8aad967e279af68a3ddb4bd9`.
 
 ```text
 rules_version = '2';
-// PROPOSTA SPARK: substitui as regras anteriores que exigiam Admin/Cloud Functions.
-// NÃO APLICAR sem revisão e confirmação. Distâncias são estimativas do cliente.
 service cloud.firestore {
  match /databases/{database}/documents {
   function signed() { return request.auth != null; }
@@ -146,7 +144,6 @@ service cloud.firestore {
    allow delete: if signed() && availabilityAfter(u,true)
     && ((own(u) && role(u,'motorista') && pairedFinish(u,resource.data.rideId)) || pairedCancel(u,resource.data.rideId));
   }
-  // Read-only permission probe; no document creation is required for feature detection.
   match /system_capabilities/{id} { allow get: if signed() && id == 'cancellation-v1'; }
   match /{document=**} { allow read, write: if false; }
  }

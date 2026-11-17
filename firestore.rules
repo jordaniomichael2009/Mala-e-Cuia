@@ -1,6 +1,4 @@
 rules_version = '2';
-// PROPOSTA SPARK: substitui as regras anteriores que exigiam Admin/Cloud Functions.
-// NÃO APLICAR sem revisão e confirmação. Distâncias são estimativas do cliente.
 service cloud.firestore {
  match /databases/{database}/documents {
   function signed() { return request.auth != null; }
@@ -137,7 +135,6 @@ service cloud.firestore {
    allow delete: if signed() && availabilityAfter(u,true)
     && ((own(u) && role(u,'motorista') && pairedFinish(u,resource.data.rideId)) || pairedCancel(u,resource.data.rideId));
   }
-  // Read-only permission probe; no document creation is required for feature detection.
   match /system_capabilities/{id} { allow get: if signed() && id == 'cancellation-v1'; }
   match /{document=**} { allow read, write: if false; }
  }

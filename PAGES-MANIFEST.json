@@ -5,8 +5,8 @@
   "files": [
     {
       "path": "docs/index.html",
-      "bytes": 65031,
-      "sha256": "a3c668716fc594ac29278c53cf806582a35d68d62ae94a19b8bb38ee783e401c"
+      "bytes": 69834,
+      "sha256": "0759965e2bed306484a16efa6310a37b035ddd8b1f993844cc78e27eea0a5d1e"
     },
     {
       "path": "docs/driver-settings.js",
@@ -15,8 +15,8 @@
     },
     {
       "path": "docs/firestore-client.js",
-      "bytes": 7276,
-      "sha256": "b2f52159419723dc00a521de074714f1584164d3451f24d6a42c4f31d5735cba"
+      "bytes": 8712,
+      "sha256": "9cca2af6403c4dfc3797c48104bf7c480a8ed88bc91dcdbc4f1266faf149ae78"
     },
     {
       "path": "docs/.nojekyll",

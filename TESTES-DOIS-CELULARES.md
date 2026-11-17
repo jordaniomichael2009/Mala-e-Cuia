@@ -75,3 +75,8 @@ Pré-requisito: conferir `ATUALIZACAO-CANCELAMENTO.md` e aplicar as regras novas
 8. Os botões ficam bloqueados enquanto uma operação aguarda resposta. Conferir que recarregar não repete cancelamento ou muda o autor. Cancelar novamente, reabrir concluída ou alterar corrida alheia deve falhar.
 
 Nenhum dos passos físicos foi executado nesta sessão. Os testes de regras e disputas foram executados apenas no Emulator; os de confirmação/destaque/histórico usaram navegador com mocks.
+
+
+## Aceite: diagnóstico e Maps
+
+No cartão do motorista, acompanhar verificação, rotas 1/3 a 3/3 e confirmação do Firestore. Antes da confirmação, deve continuar Solicitada e não abrir Maps. Após confirmação, deve aparecer Aceita com Abrir rota até passageiro, Confirmar embarque e Cancelar; Recusar desaparece. Testar o link manual após voltar do Maps. Em falha, registrar o código/etapa mostrados no próprio cartão, sem forçar alteração da corrida pelo console. Conferir o painel do passageiro em cada etapa. Nenhuma reprodução real da corrida vPin18pd foi executada nesta sessão.
