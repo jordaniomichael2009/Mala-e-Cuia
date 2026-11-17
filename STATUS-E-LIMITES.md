@@ -20,3 +20,6 @@ Todos os itens permanecem parciais como entrega operacional, pois não houve tes
 Não existe validação independente de distância nem cotação garantida no backend. Sem Functions, esta revisão prioriza a segurança de participantes, reservas e etapas; o preço é explicitamente estimativa. A estimativa surge no aceite, para preservar a base privada do motorista.
 
 Nenhuma regra antiga foi aplicada. Esta adaptação é destinada somente à branch de revisão `teste-sem-blaze`, sem alterar a `main` ou o Firebase. O commit anterior segue preservado como referência histórica da variante com Functions.
+
+
+Preparação Pages local: pacote mínimo em `docs/`, manifesto e regras completas para revisão. Há seis testes novos de compatibilidade. Atualizações de corridas exigem `schemaVersion: 2`; pedidos antigos não são migrados. A garantia de reserva única vale para o fluxo novo, não substitui inventário/tratamento de corridas antigas ativas sem reserva. Não reutilizar contas nessas condições. Teste físico com duas contas novas continua pendente.

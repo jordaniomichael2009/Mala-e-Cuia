@@ -1,0 +1,27 @@
+{
+  "branch": "teste-sem-blaze",
+  "source": "/docs",
+  "mode": "review-only-not-published",
+  "files": [
+    {
+      "path": "docs/index.html",
+      "bytes": 61029,
+      "sha256": "7eea08d20676828a6249287f316996b98fbccc42ba2a83d80b19722284e29146"
+    },
+    {
+      "path": "docs/driver-settings.js",
+      "bytes": 2753,
+      "sha256": "4b6c28f131a2b0f56dfdb269932f772f8329e4e96225b107cf6e1bc7ef0ab478"
+    },
+    {
+      "path": "docs/firestore-client.js",
+      "bytes": 5957,
+      "sha256": "bb0dde4b5b1d5097a678245d5258c765ee2a2b299930a1e1f67c75e49f688681"
+    },
+    {
+      "path": "docs/.nojekyll",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

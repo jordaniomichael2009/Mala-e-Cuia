@@ -34,3 +34,8 @@ npm run build:web
 O navegador usa Chromium do sistema ou o instalado com `npx playwright install chromium`. O teste de navegador intercepta toda a rede. O de regras usa somente o projeto local `demo-mala-e-cuia`; não exige login Firebase. Abrir o HTML manualmente usa a configuração original do Firebase: não o faça para teste isolado sem os mocks ou sem autorização para o ambiente correspondente.
 
 `build:web` gera somente os três arquivos públicos em `web-dist`, sem backend. Não há configuração `functions` em `firebase.json`.
+
+
+## Preparação atual do Pages
+
+Ler `PUBLICACAO-PAGES-REVISAO.md`, `COMPATIBILIDADE-LEGADOS.md` e `REGRAS-COMPLETAS-FIRESTORE.md`. `npm run prepare:pages` gera somente quatro arquivos em `docs/` e um manifesto na raiz. Fonte proposta para eventual publicação: `teste-sem-blaze /docs`; não foi configurada. `npm run test:pages` testa esse pacote no subdiretório `/Mala-e-Cuia/` com a rede simulada. Corridas novas têm `schemaVersion: 2`; antigas são somente consulta. A migração de contas com corridas antigas ativas é bloqueio antes de reutilizá-las.

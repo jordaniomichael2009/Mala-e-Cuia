@@ -1,7 +1,8 @@
 // Isolated browser check: no request reaches Firebase or other external services.
 const {chromium}=require('playwright');
 const assert=require('node:assert/strict');
-const fs=require('node:fs');
+const fs=require('node:fs');const path=require('node:path');
+const baseURL=process.env.MALA_TEST_BASE_URL||'http://localhost/';const appDir=process.env.MALA_TEST_DIR||'.';
 
 (async()=>{
 const browser=await chromium.launch({...(fs.existsSync('/usr/bin/chromium')?{executablePath:'/usr/bin/chromium'}:{}),headless:true,args:['--no-sandbox']});
@@ -31,8 +32,8 @@ async function createPage(uid,{stale=false}={}){
  await page.exposeBinding('writeDoc',(_,path,data)=>write(path,data));
  await page.exposeBinding('subscribe',async(_,id,ref)=>{const l={page,id,ref};listeners.push(l);await deliver(l)});
  await page.addInitScript(({uid,stale})=>{window.testUser={uid,email:uid+'@example.test'};window.subs={};window.subId=0;if(stale){localStorage.setItem('mc_demo_empty_rate','99');localStorage.setItem('mc_demo_occupied_rate','98');localStorage.setItem('mc_demo_base',JSON.stringify({lat:1,lng:2}));}},{uid,stale});
- await page.route('**/*',route=>{const url=route.request().url();if(['http://localhost/driver-settings.js','http://localhost/firestore-client.js'].includes(url))return route.fulfill({contentType:'text/javascript',body:fs.readFileSync(new URL(url).pathname.slice(1),'utf8')});if(url.startsWith('http://localhost/'))return route.fulfill({contentType:'text/html',body:fs.readFileSync('index.html','utf8')});if(url.includes('gstatic.com/firebasejs/'))return route.fulfill({contentType:'text/javascript',body:moduleCode});if(url.includes('router.project-osrm.org'))return route.fulfill({json:{code:'Ok',routes:[{distance:10000}]}});if(url.includes('ibge.gov.br'))return route.fulfill({json:[{nome:'Conceição'}]});if(url.includes('nominatim.openstreetmap.org'))return route.fulfill({json:[{lat:'-7.6',lon:'-38.4',display_name:'Hospital de teste'}]});return route.abort();});
- await page.goto('http://localhost/');await page.waitForFunction(()=>window.mcDriverSettings?.getState().loaded);return page;
+ await page.route('**/*',route=>{const url=route.request().url();if([baseURL+'driver-settings.js',baseURL+'firestore-client.js'].includes(url))return route.fulfill({contentType:'text/javascript',body:fs.readFileSync(path.join(appDir,url.slice(baseURL.length)),'utf8')});if(url.startsWith(baseURL))return route.fulfill({contentType:'text/html',body:fs.readFileSync(path.join(appDir,'index.html'),'utf8')});if(url.includes('gstatic.com/firebasejs/'))return route.fulfill({contentType:'text/javascript',body:moduleCode});if(url.includes('router.project-osrm.org'))return route.fulfill({json:{code:'Ok',routes:[{distance:10000}]}});if(url.includes('ibge.gov.br'))return route.fulfill({json:[{nome:'Conceição'}]});if(url.includes('nominatim.openstreetmap.org'))return route.fulfill({json:[{lat:'-7.6',lon:'-38.4',display_name:'Hospital de teste'}]});return route.abort();});
+ await page.goto(baseURL);await page.waitForFunction(()=>window.mcDriverSettings?.getState().loaded);return page;
 }
 const passenger=await createPage('passenger'),driver=await createPage('driver');
 // Saving the first profile must activate the ride panel without logout/reload.

@@ -24,3 +24,10 @@ As tarifas vêm da conta no aceite e são congeladas na estimativa da corrida. A
 `functions/` e os testes de Admin backend anteriores foram removidos da variante ativa; versões anteriores permanecem recuperáveis pelo commit Git existente. O cliente não importa Functions, e `firebase.json` não configura Functions. Testes de regras usam o SDK Firebase cliente; somente as APIs de administração **do Emulator** fazem limpeza e carregamento de regras na inicialização da suíte.
 
 Esta revisão é destinada à branch `teste-sem-blaze`, separada da `main`. O commit anterior `7f60b97` continua preservado em `teste-mala-cuia-3` e descreve a variante antiga com Functions; não representa esta nova versão. Regras/cliente novos precisam ser revisados e, só após autorização, publicados em conjunto. Não alterar o plano do projeto.
+
+
+## Revisão de preparação Pages e registros antigos
+
+Pedidos novos recebem `schemaVersion: 2`, exigido no cliente e nas atualizações das regras. Registros sem marcador ficam somente para consulta, inclusive pedidos do commit Spark anterior. Isso evita uma promoção implícita do esquema, mas não resolve corridas antigas ativas: as regras não podem consultar toda a coleção para descobrir uma corrida histórica sem reserva. Essa situação é um bloqueio de migração, confirmado em fixture do Emulator; não reutilizar essas contas antes de resolução administrativa autorizada.
+
+Foram adicionados seis testes de compatibilidade (19 no total do Emulator). O pacote mínimo do Pages tem quatro arquivos em `docs/`; cenário de três sessões passou também com caminho `/Mala-e-Cuia/`. Ver documentos específicos de compatibilidade/publicação. Nenhum banco real foi inspecionado.

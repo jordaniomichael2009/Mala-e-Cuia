@@ -4,7 +4,7 @@
 
 - `npm run test:unit`: 6 testes de sincronização aprovados. Bloqueio durante leitura, offline, troca de conta, conta nova sem padrões, rejeição/recarregamento de versão antiga e configuração inválida.
 - `npm run test:browser`: aprovado com três sessões móveis de Chromium, viewport 390 × 844. Executa `firestore-client.js` com SDK/transporte simulado; restaura config por UID, ignora cache antigo, unifica Conta/Painel, recusa salvamento antigo e exercita pedido/aceite/embarque/conclusão/histórico. Todos os serviços externos são interceptados. A configuração de GPS igual ao embarque gera trecho vazio de ida zero; estimativa final desse teste é R$ 37,00.
-- `npm run test:emulator`: **13 testes aprovados**, código 0. Projeto `demo-mala-e-cuia`, 127.0.0.1, Firestore Emulator 1.19.8/Java 21. Usa o SDK cliente com as novas regras; NÃO usa Admin SDK/Cloud Functions para executar as operações de negócio.
+- `npm run test:emulator`: **19 testes aprovados**, código 0. Projeto `demo-mala-e-cuia`, 127.0.0.1, Firestore Emulator 1.19.8/Java 21. Usa o SDK cliente com as novas regras; NÃO usa Admin SDK/Cloud Functions para executar as operações de negócio.
 - Build estático e sintaxe JS/JSON verificados; CSS original preservado.
 
 ## O que o Emulator confirmou
@@ -28,3 +28,17 @@
 O Emulator é um servidor local real com regras compiladas/transações, mas não é Firebase de produção. O teste de navegador usa mocks; as garantias das regras vêm da suíte separada de Emulator. Não houve Auth real, OSRM real, Google Maps nativo ou dois celulares físicos.
 
 A publicação do código desta adaptação é restrita à branch de revisão `teste-sem-blaze`. Nenhum merge, deploy ou alteração no Firebase real. As regras fornecidas são propostas para revisão; não foram aplicadas a nenhum projeto real. O pacote anterior com Functions e seu commit continuam preservados fora da variante ativa.
+
+
+## Casos adicionais da preparação Pages
+
+14. Perfil antigo com tarifas extras permanece legível; salvamento explícito do novo formulário remove esses campos sem transferir tarifas para a configuração.
+15. Formato antigo de disponibilidade pode alternar sem reserva.
+16. Configuração UUID antiga mantém edição bloqueada e não é substituída por padrões.
+17. Pedidos sem marcador de três variantes históricas permanecem somente consulta; cliente e regras negam atualização/promoção automática.
+18. Histórico antigo permanece legível; reserva de uma corrida antiga ativa não pode ser liberada por esta nova interface.
+19. Bloqueio de migração demonstrado: corrida antiga aceita sem reserva não impede uma nova reserva. Resolver o estado histórico antes de reutilizar a conta; o teste não declara essa situação segura.
+
+`npm run test:pages`: aprovado com três sessões e arquivos gerados em `docs/`, servidos sob `/Mala-e-Cuia/`. Testa importações relativas, sessão e fluxo completo com SDK/serviços simulados. Não é publicação ou execução no domínio GitHub real.
+
+Os fixtures históricos foram extraídos dos formatos do código Git, não do banco real. Nenhum push, troca de fonte do Pages ou aplicação de regras foi realizado nesta preparação.

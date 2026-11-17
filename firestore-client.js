@@ -15,7 +15,7 @@ export function createFirestoreClient({sdk,db,auth,routeKm}) {
  const next={base:d.base,vehicle:d.vehicle,emptyRateCents:Math.round(d.emptyRate*100),occupiedRateCents:Math.round(d.occupiedRate*100),version:(current?.version??0)+1,updatedAt:serverTimestamp(),position:d.position??current?.position??null,positionAt:d.position?serverTimestamp():current?.positionAt??null};
  tx.set(target,next);return {saved:true,version:next.version};});}
  async function requestRide(d){const u=uid(),target=doc(collection(db,'corridas_teste'));
- const ride={passengerId:u,driverId:d.driverId,status:'solicitada',service:d.service,pickup:d.pickup,destination:d.destination,pickupLabel:d.pickupLabel,destinationLabel:d.destinationLabel,estimate:null,createdAt:serverTimestamp(),updatedAt:serverTimestamp()};
+ const ride={schemaVersion:2,passengerId:u,driverId:d.driverId,status:'solicitada',service:d.service,pickup:d.pickup,destination:d.destination,pickupLabel:d.pickupLabel,destinationLabel:d.destinationLabel,estimate:null,createdAt:serverTimestamp(),updatedAt:serverTimestamp()};
  await runTransaction(db,async tx=>{const p=await tx.get(ref('perfis',u));if(!exists(p)||p.data().tipo!=='passageiro')fail('permission-denied','Salve perfil Passageiro.');tx.set(target,ride);});return {id:target.id};}
  const meters=km=>{if(!Number.isFinite(km)||km<0||km>10000)fail('unavailable','Distância inválida.');return Math.round(km*1000);};
  async function rideStep(d){const u=uid(),target=ref('corridas_teste',d.rideId);let prepared=null;
@@ -23,7 +23,7 @@ export function createFirestoreClient({sdk,db,auth,routeKm}) {
   // Read only this driver's private configuration; the passenger never reads the base.
   const {getDocFromServer}=sdk;const [r,c]=await Promise.all([getDocFromServer(target),getDocFromServer(ref('config_motoristas',u))]);
   if(!exists(r)||!exists(c))fail('failed-precondition','Corrida ou configuração não encontrada.');
-  const ride=r.data(),cfg=c.data();if(ride.driverId!==u||ride.status!=='solicitada')fail('permission-denied','Solicitação não disponível para esta conta.');
+  const ride=r.data(),cfg=c.data();if(ride.schemaVersion!==2)fail('failed-precondition','Corrida antiga: somente consulta; recrie o pedido após revisar a migração.');if(ride.driverId!==u||ride.status!=='solicitada')fail('permission-denied','Solicitação não disponível para esta conta.');
   if(!cfg.position||!cfg.positionAt||Date.now()-cfg.positionAt.toMillis()>900000)fail('failed-precondition','Atualize o GPS do motorista.');
   const toPickupMeters=meters(await routeKm(cfg.position,ride.pickup)),occupiedMeters=meters(await routeKm(ride.pickup,ride.destination)),returnMeters=meters(await routeKm(ride.destination,cfg.base));
   prepared={source:'client-estimate',currency:'BRL',toPickupMeters,occupiedMeters,returnMeters,emptyRateCents:cfg.emptyRateCents,occupiedRateCents:cfg.occupiedRateCents,totalCents:Math.round(((toPickupMeters+returnMeters)*cfg.emptyRateCents+occupiedMeters*cfg.occupiedRateCents)/1000),configVersion:cfg.version};
@@ -31,6 +31,7 @@ export function createFirestoreClient({sdk,db,auth,routeKm}) {
  return runTransaction(db,async tx=>{
   const rideSnap=await tx.get(target),lockRef=ref('motoristas_ativos',u),lock=await tx.get(lockRef),availabilityRef=ref('disponibilidades',u),available=await tx.get(availabilityRef);
   if(!exists(rideSnap))fail('not-found','Corrida não encontrada.');const ride=rideSnap.data();
+  if(ride.schemaVersion!==2)fail('failed-precondition','Corrida antiga: somente consulta.');
   if(ride.driverId!==u)fail('permission-denied','Apenas o motorista designado.');
   const transitions={solicitada:['aceita','recusada'],aceita:['embarcado'],embarcado:['concluida']};if(!transitions[ride.status]?.includes(d.next))fail('failed-precondition','Etapa já alterada ou inválida.');
   if(d.next==='aceita'){

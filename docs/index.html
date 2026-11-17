@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#b92531"><title>Mala e Cuia 3.0 Teste Integrado | Passageiro e Motorista</title>
+<style>
+:root{--red:#c52c39;--dark:#20242c;--muted:#69717c;--line:#e8e9ec;--bg:#f5f6f8;--green:#17865b}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--dark);font-family:system-ui,-apple-system,Segoe UI,Arial,sans-serif}button,input,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.5;cursor:not-allowed}.shell{max-width:540px;min-height:100dvh;margin:auto;background:#fff;padding-bottom:94px;box-shadow:0 0 35px #1522380b}.top{background:linear-gradient(125deg,#a91e2c,#d93b49);color:white;padding:22px 20px 25px;border-radius:0 0 26px 26px}.topline{display:flex;align-items:center;justify-content:space-between}.brand{font-size:22px;font-weight:850;letter-spacing:-.5px}.brand span{font-size:25px}.avatar{background:#ffffff2e;border:1px solid #ffffff50;border-radius:50%;height:39px;width:39px;display:grid;place-items:center}.welcome{font-size:13px;opacity:.85;margin:15px 0 2px}.top h1{font-size:23px;margin:0;font-weight:750}.content{padding:18px}.card{background:white;border:1px solid var(--line);border-radius:18px;padding:17px;margin-bottom:16px;box-shadow:0 4px 18px #0d1d3410}.section-title{font-weight:800;font-size:15px;margin:0 0 13px}.location{display:flex;gap:11px;align-items:center}.dot{width:11px;height:11px;border-radius:50%;background:var(--green);flex:none}.dot.end{background:var(--red)}.loc-fields{flex:1;min-width:0}.small{font-size:12px;color:var(--muted);margin-bottom:4px}.input{width:100%;border:1px solid #dde0e5;border-radius:11px;padding:12px;background:#fff;outline:none;color:var(--dark)}.input:focus{border-color:var(--red);box-shadow:0 0 0 3px #c52c391c}.origin{font-size:14px;font-weight:650;word-break:break-word}.separator{border-left:2px dashed #d8dce0;height:20px;margin:6px 0 6px 4px}.mini{border:0;background:#f5f6f8;color:#525a64;border-radius:9px;padding:9px;font-size:12px;font-weight:700}.services{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.service{border:1.5px solid var(--line);border-radius:13px;background:white;padding:14px 4px;display:flex;align-items:center;flex-direction:column;gap:7px;font-weight:700}.service .emoji{font-size:27px}.service.active{border-color:var(--red);background:#fff3f4;color:#a81e2a}.modes{display:grid;grid-template-columns:1fr 1fr;gap:8px}.mode{background:#f7f7f8;border:1.5px solid transparent;border-radius:12px;padding:12px 8px;text-align:left}.mode strong{display:block;font-size:13px;margin:5px 0}.mode small{color:var(--muted);font-size:11px;line-height:1.4;display:block}.mode.active{border-color:var(--red);background:#fff4f4}.estimate{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:13px;background:#f7f8f9;border-radius:12px;margin-top:13px}.estimate strong{font-size:20px}.estimate p{margin:3px 0 0;font-size:11px;color:var(--muted)}.primary{border:0;background:var(--red);color:white;border-radius:13px;width:100%;padding:15px;font-weight:800;font-size:15px;margin-top:14px}.secondary{background:#fff;color:var(--red);border:1px solid #e5b1b5;border-radius:11px;padding:12px;font-weight:750}.notice{font-size:12px;line-height:1.5;color:#705921;background:#fff7df;border:1px solid #f4dfaa;border-radius:12px;padding:12px;margin:12px 0}.status{font-size:12px;color:var(--muted);margin-top:9px;min-height:18px}.hidden{display:none!important}.drivers{display:grid;gap:9px;margin-top:12px}.driver{border:1px solid var(--line);border-radius:12px;padding:12px;display:flex;justify-content:space-between;gap:8px}.driver strong{font-size:13px}.driver small{color:var(--muted)}.map{height:165px;border-radius:15px;background:linear-gradient(30deg,#e5ece6,#f4f5ed);position:relative;overflow:hidden;border:1px solid #e3e7e3;margin-bottom:16px}.map:before{content:"";position:absolute;inset:-20px;background:repeating-linear-gradient(32deg,transparent 0 28px,#ffffffc9 29px 37px,transparent 38px 76px),repeating-linear-gradient(116deg,transparent 0 46px,#ffffffad 47px 56px,transparent 57px 106px)}.map .pin{position:absolute;left:48%;top:36%;background:white;border-radius:20px;padding:9px 13px;box-shadow:0 5px 20px #2632382b;font-weight:800;font-size:12px}.map .caption{position:absolute;bottom:9px;left:10px;background:#ffffffea;padding:6px 9px;border-radius:8px;font-size:11px;color:#56616a}.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);max-width:540px;width:100%;background:white;border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:10px 4px max(11px,env(safe-area-inset-bottom));z-index:10}.nav button{border:0;background:none;color:#7d858e;font-size:11px;display:grid;gap:3px;justify-items:center;min-width:70px}.nav button.active{color:var(--red);font-weight:800}.nav .symbol{font-size:22px}.inline-row{display:flex;gap:8px;align-items:center;justify-content:space-between}.tag{background:#eaf8f0;color:#16754e;border-radius:30px;font-size:11px;padding:5px 8px;font-weight:750}.toast{padding:12px;border-radius:11px;background:#edf5ff;color:#224c73;font-size:13px;margin:12px 0}.footer-note{font-size:11px;color:#808894;text-align:center;padding:0 8px 12px}@media(min-width:600px){body{padding:20px}.shell{border-radius:22px;overflow:hidden;min-height:calc(100dvh - 40px)}.top{border-radius:0 0 25px 25px}}
+.search-row{display:flex;gap:8px;margin-top:9px}.search-row button{flex:none}.search-results{display:grid;gap:7px;margin-top:9px}.result-item{width:100%;text-align:left;border:1px solid #e2e5e9;border-radius:10px;background:#fff;padding:10px;font-size:13px;color:#252b32}.result-item:focus,.result-item:hover{border-color:var(--red);background:#fff7f7}.search-hint{font-size:11px;color:var(--muted);margin-top:6px}.chosen{background:#eaf8f0;color:#166a48;border-radius:9px;padding:9px;margin-top:9px;font-size:12px}.city-grid{display:grid;grid-template-columns:105px 1fr;gap:10px;margin-top:12px}.city-wrap{position:relative}.city-suggestions{position:absolute;top:100%;left:0;right:0;background:white;box-shadow:0 9px 25px #1112;border:1px solid #ddd;border-radius:10px;z-index:8;max-height:220px;overflow:auto}.city-suggestions button{display:block;width:100%;text-align:left;background:white;border:0;border-bottom:1px solid #eee;padding:11px;color:var(--dark)}.role-toggle{display:flex;gap:6px;margin-top:12px}.role-toggle button{flex:1;border:1px solid #ffffff75;background:#ffffff22;color:white;border-radius:10px;padding:9px;font-size:12px;font-weight:750}.role-toggle button.active{background:white;color:#aa2231}.driver-metric{display:grid;grid-template-columns:1fr 1fr;gap:10px}.driver-metric>div{background:#f6f7f9;border-radius:13px;padding:14px}.driver-metric strong{display:block;font-size:20px;margin-top:6px}.driver-online{background:#eaf8f0;color:#16754e;border-radius:12px;padding:13px;font-weight:750}.driver-offline{background:#f5f5f5;color:#666;border-radius:12px;padding:13px;font-weight:750}
+
+.fare-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.fare-grid label{display:block}.fare-grid input{margin-top:5px}.fare-result{background:#f3f8f5;border:1px solid #d8eee1;border-radius:13px;padding:14px;margin-top:12px}.fare-result strong{font-size:24px;color:#126b47}.fare-breakdown{display:flex;justify-content:space-between;gap:8px;margin-top:8px;font-size:13px}.fare-help{font-size:12px;line-height:1.55;color:#69717c}.fare-result .fare-help{margin:9px 0 0}.base-state{font-size:12px;color:#176b4c;margin-top:7px;word-break:break-word}
+.auth-form{display:grid;gap:11px;margin-top:15px}.auth-form label{font-size:13px;font-weight:650}.auth-form input{margin-top:5px}.auth-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}.auth-note{font-size:12px;color:var(--muted);line-height:1.5}.auth-success{color:#126b47;font-weight:700}.auth-error{color:#a61b29;font-weight:650}
+.profile-form{display:grid;gap:11px;margin-top:12px}.profile-form label{font-size:13px;font-weight:650}.profile-form input,.profile-form select{margin-top:5px}.profile-info{font-size:12px;color:#69717c;line-height:1.5}
+</style>
+</head>
+<body><div class="shell">
+<header class="top"><div class="topline"><div class="brand"><span>🚙</span> Mala e Cuia <small style="font-size:11px;opacity:.8">3.0 teste integrado</small></div><div class="avatar" aria-label="Perfil">👤</div></div><p class="welcome">Mobilidade para nossa região</p><h1>Para onde vamos hoje?</h1><div class="role-toggle" aria-label="Alternar visualização"><button type="button" class="active" data-role="passageiro">👤 Passageiro</button><button type="button" data-role="motorista">🚘 Motorista</button></div></header>
+<main class="content">
+<section id="homeView">
+<div class="map" role="img" aria-label="Ilustração decorativa de mapa; não é um mapa de navegação"><div class="pin">📍 Sua região</div><div class="caption">Prévia visual • GPS abaixo</div></div>
+<div class="card"><h2 class="section-title">📍 Sua viagem</h2><div class="location"><div class="dot"></div><div class="loc-fields"><div class="small">LOCAL DE EMBARQUE</div><div class="origin" id="origin">Localização não informada</div></div><button class="mini" id="gpsBtn" type="button">Usar GPS</button></div><div class="separator"></div><div class="location"><div class="dot end"></div><div class="loc-fields"><label for="destination" class="small">DESTINO OU PONTO DE REFERÊNCIA</label><input class="input" id="destination" autocomplete="street-address" placeholder="Ex.: Rua João Pessoa, Centro, hospital..."></div></div><div class="search-row"><button type="button" class="secondary" id="searchStreetBtn">🔎 Buscar rua ou local</button></div><div id="searchStatus" class="status" aria-live="polite"></div><div id="searchResults" class="search-results" aria-label="Resultados da busca"></div><div id="chosenDestination" class="chosen hidden"></div><div class="search-hint">Busca de ruas e locais no OpenStreetMap (© colaboradores). Requer internet. Confirme o endereço antes da viagem.</div><div class="city-grid"><div><label class="small" for="uf">ESTADO (UF)</label><select class="input" id="uf"><option value="">UF</option></select></div><div class="city-wrap"><label class="small" for="city">CIDADE</label><input id="city" class="input" autocomplete="off" value="Conceição" placeholder="Digite o nome da cidade" aria-expanded="false" aria-controls="citySuggestions"><div id="citySuggestions" class="city-suggestions hidden"></div></div></div><div id="cityStatus" class="status" aria-live="polite">Selecione a UF e digite sua cidade.</div></div>
+<div class="card"><h2 class="section-title">Escolha o serviço</h2><div class="services"><button class="service active" data-service="carro" type="button"><span class="emoji">🚗</span>Carro</button><button class="service" data-service="moto" type="button"><span class="emoji">🏍️</span>Moto</button><button class="service" data-service="frete" type="button"><span class="emoji">🚚</span>Frete</button></div></div>
+<div class="card"><h2 class="section-title">Como deseja chamar?</h2><div class="modes"><button type="button" class="mode active" data-mode="auto"><span>⚡</span><strong>Busca automática</strong><small>Encontre um motorista disponível sem precisar escolher.</small></button><button type="button" class="mode" data-mode="manual"><span>👤</span><strong>Escolher motorista</strong><small>Compare opções e selecione seu motorista.</small></button></div><div class="estimate"><div><div class="small">VALOR ESTIMADO</div><strong>A calcular</strong><p>Depende da rota e da tarifa confirmada</p></div><span style="font-size:27px">💳</span></div><div class="card" style="border-color:#f0d8db;margin-top:13px"><h2 class="section-title">🧮 Simulação da tarifa por percurso</h2><p class="fare-help">A tarifa inclui a ida vazia do GPS atual do motorista ao passageiro, o percurso ocupado e a volta vazia do destino até a base cadastrada. Calcule automaticamente as três rotas pelas ruas ou ajuste manualmente as distâncias para simular.</p><div class="fare-grid"><label class="small">Ida vazia (km)<input class="input fare-distance" id="fareToPickup" type="number" min="0" step="0.1" value="3"></label><label class="small">Com passageiro (km)<input class="input fare-distance" id="fareWithPassenger" type="number" min="0" step="0.1" value="8"></label><label class="small">Retorno à base (km)<input class="input fare-distance" id="fareReturn" type="number" min="0" step="0.1" value="10"></label></div><button type="button" class="primary" id="calculateRoutesBtn">🛣️ Calcular três trajetos pelas ruas</button><div class="status" id="routeStatus" aria-live="polite">Para calcular: confirme o GPS do passageiro, selecione o destino, obtenha o GPS do motorista e cadastre sua base.</div><div id="passengerFareResult" class="fare-result" aria-live="polite"></div><p class="fare-help">Estimativa demonstrativa com as tarifas do motorista deste aparelho. A rota depende da cobertura do serviço de mapas; nenhuma corrida é enviada.</p></div><div class="notice" id="modeInfo">Na busca automática, o sistema enviará a solicitação a motoristas elegíveis, um de cada vez, quando o despacho seguro estiver habilitado.</div><div id="driverList" class="drivers hidden"><div class="toast">A lista real de motoristas ficará disponível após autenticação e regras de acesso.</div></div><button id="requestBtn" class="primary" type="button">🚗 Preparar solicitação automática</button><div id="requestStatus" class="status" aria-live="polite"></div></div>
+<div class="footer-note">Versão 3.0 teste integrado de testes • Rotas via serviço público OSRM • Corridas de teste disponíveis no painel integrado abaixo; não utilizar comercialmente.</div>
+</section>
+<section id="driverView" class="hidden"><div class="card"><h2 class="section-title">🚘 Painel do motorista</h2><div id="driverOnlineBadge" class="driver-offline">⚪ Indisponível — teste</div><button id="driverOnlineBtn" type="button" class="primary">🟢 Marcar disponível (teste)</button><div class="notice">A disponibilidade é privada. O painel integrado abaixo recebe solicitações dirigidas por UID; o aceite reserva o motorista em uma transação do Firestore quando as regras desta versão estiverem implantadas.</div></div><div class="card"><h2 class="section-title">📡 Radar de chamados</h2><div class="toast">Consulte os chamados no painel integrado abaixo. Sincronize GPS, base e tarifas antes do teste. O motorista calcula a estimativa ao aceitar.</div><button class="secondary" type="button" id="driverGpsBtn">📍 Verificar meu GPS</button><div id="driverGpsStatus" class="status">Localização não consultada.</div></div><div class="card"><h2 class="section-title">📊 Resumo do dia</h2><div class="driver-metric"><div><span class="small">CORRIDAS CONCLUÍDAS</span><strong>—</strong></div><div><span class="small">GANHOS</span><strong>—</strong></div></div><p class="small" style="margin-top:12px">Os valores reais aparecerão após a integração com o Firestore.</p></div><div class="card"><h2 class="section-title">🏠 Minha base de trabalho</h2><p class="fare-help">Cadastre a localização da casa, praça ou ponto de trabalho. O GPS atual será o início da ida vazia, enquanto a base será o destino do retorno vazio.</p><button type="button" class="secondary" id="setBaseGps" disabled>📍 Definir minha base usando GPS</button><div class="base-state" id="baseStatus">Base ainda não cadastrada neste aparelho.</div><div class="notice">A base da conta é restaurada do servidor. Uma nova base só é gravada quando você salva explicitamente a configuração.</div></div><div class="card"><h2 class="section-title">⚙️ Minhas duas tarifas</h2><label class="small" for="driverEmptyRate">Quilômetro vazio — custos (R$)</label><input class="input" id="driverEmptyRate" type="number" min="0" step="0.10" value="" disabled><p class="fare-help">Aplicado à ida do motorista até o passageiro e ao retorno do destino até a base.</p><label class="small" for="driverRate">Quilômetro com passageiro (R$)</label><input class="input" id="driverRate" type="number" min="0" step="0.10" value="" disabled><p class="fare-help">Aplicado somente ao percurso entre embarque e destino.</p><div class="fare-result" id="driverFareExample"></div><button class="secondary" type="button" id="syncDriverBackend" disabled>Salvar configuração da conta e atualizar GPS</button><button class="secondary" type="button" id="reloadDriverSettings">Recarregar configuração da conta</button><div class="status" id="driverBackendStatus">Carregando configuração da conta. Alterações bloqueadas até receber os dados do servidor.</div></div></section>
+<section class="card" id="navigationDemo" style="margin-top:14px"><h2 class="section-title">🗺️ Navegação do motorista — demonstração</h2><p class="small">Teste o fluxo do Google Maps sem criar uma corrida no Firebase. Para testar, confirme o GPS do passageiro e selecione um destino na aba Passageiro. Os dados ficam apenas neste navegador.</p><div class="small" id="demoStage">Etapa: aguardando teste</div><button class="primary" type="button" id="demoStart">▶️ Simular aceite e abrir rota ao passageiro</button><button class="secondary hidden" type="button" id="demoReopen">🗺️ Abrir rota novamente</button><button class="primary hidden" type="button" id="demoBoard">✅ Confirmar embarque e abrir rota ao destino</button><button class="primary hidden" type="button" id="demoFinish">🏁 Finalizar corrida demonstrativa</button><p class="status" id="demoMessage" aria-live="polite"></p></section><section id="tripsView" class="hidden"><div class="card"><h2 class="section-title">🧾 Minhas viagens</h2><div id="tripHistory"><p class="small">Entre na Conta para consultar o histórico integrado.</p></div><button class="secondary" id="backTrips" type="button">Voltar para solicitar</button></div></section>
+<section id="accountView" class="hidden"><div class="card"><h2 class="section-title">🔐 Minha conta</h2><div class="inline-row"><span class="small">Firebase Authentication</span><span class="tag" id="firebaseState">Verificando...</span></div><p class="small" id="authState">Verificando sessão...</p><form class="auth-form" id="authForm"><label>E-mail<input class="input" id="authEmail" type="email" autocomplete="email" required placeholder="voce@exemplo.com"></label><label>Senha<input class="input" id="authPassword" type="password" minlength="6" autocomplete="current-password" required placeholder="Mínimo de 6 caracteres"></label><div class="auth-actions"><button class="primary" type="submit" id="loginBtn">Entrar</button><button class="secondary" type="button" id="registerBtn">Criar conta</button></div><button class="secondary" type="button" id="resetPasswordBtn">Esqueci minha senha</button></form><button class="secondary hidden" type="button" id="logoutBtn">Sair da conta</button><div id="profilePanel" class="hidden"><hr style="border:0;border-top:1px solid #eee;margin:18px 0"><h2 class="section-title">🪪 Meu perfil no Firestore</h2><p class="profile-info">Cada conta possui um perfil particular. A opção motorista aqui é autodeclarada para testes, não é uma aprovação profissional.</p><form id="profileForm" class="profile-form"><label>Nome de exibição<input class="input" id="profileName" maxlength="70" required placeholder="Como deseja ser chamado"></label><label>Tipo de perfil<select class="input" id="profileRole"><option value="passageiro">Passageiro</option><option value="motorista">Motorista (teste)</option></select></label><div id="profileDriverFields" class="hidden"><label>Tipo de veículo<select class="input" id="profileVehicle"><option value="carro">Carro</option><option value="moto">Moto</option><option value="frete">Frete</option></select></label><label>Tarifa por km vazio (R$)<input class="input" type="number" min="0" max="100" step="0.01" id="profileEmptyRate" value="" disabled></label><label>Tarifa por km com passageiro (R$)<input class="input" type="number" min="0" max="100" step="0.01" id="profileOccupiedRate" value="" disabled></label><p class="profile-info">As tarifas desta Conta e do Painel são as mesmas. A base e as tarifas são restauradas do servidor antes de permitir alterações.</p></div><button type="submit" class="primary" id="saveProfileBtn">💾 Salvar meu perfil no Firebase</button></form><p class="status" id="profileFeedback" aria-live="polite"></p></div><p class="status" id="authFeedback" role="status" aria-live="polite"></p><p class="auth-note">Cadastro e login são feitos diretamente no Firebase Authentication, sem gravar senhas no Firestore ou neste HTML. Ative o provedor E-mail/Senha no console Firebase. O painel integrado permite enviar corridas de teste com coordenadas de embarque e destino. O acesso depende das regras do Firestore; o GPS do motorista não é compartilhado.</p><button class="secondary" id="backAccount" type="button">Voltar para solicitar</button></div></section>
+
+<section class="card" id="liveRidePanel" style="margin:16px 18px 95px;border:2px solid #d9e9e0">
+<h2 class="section-title">📡 Corridas entre dois celulares — TESTE</h2>
+<p class="fare-help">Teste integrado ao Firestore. Use duas contas diferentes. Usa Authentication e Firestore, sem Cloud Functions. A estimativa aparece no aceite: as regras validam tarifas e fórmula, mas as distâncias calculadas no celular não são verificadas por servidor. Não realiza despacho automático; não use para transporte comercial.</p>
+<div id="rideAuth" class="notice">Faça login na aba Conta para testar.</div>
+<div id="rideLogged" class="hidden">
+<label class="small">Meu código de usuário (UID)</label>
+<div class="search-row"><input class="input" id="rideMyUid" readonly aria-label="Meu UID"><button class="secondary" id="rideCopyUid" type="button">Copiar</button></div>
+<p class="fare-help">No celular do motorista, copie este código e envie ao passageiro de teste. O passageiro deve usar uma conta com perfil Passageiro.</p>
+<div id="ridePassengerPanel" class="card" style="background:#fafafa">
+<h3 class="section-title">👤 Solicitar corrida de teste</h3>
+<label class="small" for="rideTargetUid">Código UID do motorista</label><input class="input" id="rideTargetUid" placeholder="Cole o código copiado no celular do motorista">
+<label class="small" for="ridePickupText">Referência do embarque</label><input class="input" id="ridePickupText" placeholder="Ex.: Praça central">
+<label class="small" for="rideDestinationText">Referência do destino</label><input class="input" id="rideDestinationText" placeholder="Ex.: Hospital municipal">
+<p class="fare-help">Confirme o GPS do passageiro e selecione o destino pela busca na aba Passageiro antes de enviar. As coordenadas serão gravadas na corrida de teste. Antes de testar, confirme que as regras restringem o acesso às duas contas participantes.</p>
+<button class="primary" type="button" id="rideSend">🚗 Enviar solicitação ao motorista</button>
+</div>
+<div id="rideDriverPanel" class="card" style="background:#fafafa">
+<h3 class="section-title">🚘 Chamados recebidos</h3><p class="fare-help">O motorista precisa ter perfil Motorista e estar disponível no Firebase. A tela atualiza em tempo real.</p>
+</div>
+<div id="rideIncoming"></div><div id="rideOutgoing"></div>
+</div><p id="rideFeedback" class="status" aria-live="polite"></p>
+</section>
+</main><nav class="nav" id="bottomNav" aria-label="Menu inferior"><button class="active" data-view="home" type="button"><span class="symbol">🏠</span>Início</button><button data-view="trips" type="button"><span class="symbol">🧾</span>Viagens</button><button data-view="account" type="button"><span class="symbol">👤</span>Conta</button></nav>
+</div>
+<script>
+(()=>{'use strict';const state={service:'carro',mode:'auto',coords:null,destination:null,role:'passageiro'};const $=id=>document.getElementById(id);const services={carro:'🚗',moto:'🏍️',frete:'🚚'};document.querySelectorAll('[data-service]').forEach(b=>b.addEventListener('click',()=>{state.service=b.dataset.service;document.querySelectorAll('[data-service]').forEach(x=>x.classList.toggle('active',x===b));render()}));document.querySelectorAll('[data-mode]').forEach(b=>b.addEventListener('click',()=>{state.mode=b.dataset.mode;document.querySelectorAll('[data-mode]').forEach(x=>x.classList.toggle('active',x===b));render()}));function render(){$('requestBtn').textContent=services[state.service]+(state.mode==='auto'?' Preparar solicitação automática':' Ver opções de motoristas');$('modeInfo').textContent=state.mode==='auto'?'Na busca automática, o sistema enviará a solicitação a motoristas elegíveis, um de cada vez, quando o despacho seguro estiver habilitado.':'No modo manual, o passageiro poderá comparar motoristas disponíveis e escolher um deles.';$('driverList').classList.toggle('hidden',state.mode!=='manual');$('requestStatus').textContent=''}$('gpsBtn').addEventListener('click',()=>{if(!navigator.geolocation){$('origin').textContent='GPS indisponível neste dispositivo';return}state.coords=null;$('origin').textContent='Solicitando permissão...';navigator.geolocation.getCurrentPosition(p=>{state.coords={lat:p.coords.latitude,lng:p.coords.longitude};$('origin').textContent='GPS confirmado ('+state.coords.lat.toFixed(5)+', '+state.coords.lng.toFixed(5)+')'},e=>{$('origin').textContent='Não foi possível obter o GPS';$('requestStatus').textContent='Verifique a permissão de localização e use HTTPS. Código: '+e.code},{enableHighAccuracy:true,timeout:12000,maximumAge:30000})});// Pesquisa sob demanda: evita autocomplete no serviço público Nominatim.
+window.mcPassengerPosition=()=>state.coords;window.mcSelectedDestination=()=>state.destination;let lastSearchAt=0;
+const resetDestination=()=>{state.destination=null;$('chosenDestination').classList.add('hidden');$('chosenDestination').textContent='';};
+$('destination').addEventListener('input',resetDestination);
+$('city').addEventListener('input',resetDestination);
+// IBGE: autocomplete local de cidades, sem requisições a cada tecla.
+const states=[['AC','Acre'],['AL','Alagoas'],['AP','Amapá'],['AM','Amazonas'],['BA','Bahia'],['CE','Ceará'],['DF','Distrito Federal'],['ES','Espírito Santo'],['GO','Goiás'],['MA','Maranhão'],['MT','Mato Grosso'],['MS','Mato Grosso do Sul'],['MG','Minas Gerais'],['PA','Pará'],['PB','Paraíba'],['PR','Paraná'],['PE','Pernambuco'],['PI','Piauí'],['RJ','Rio de Janeiro'],['RN','Rio Grande do Norte'],['RS','Rio Grande do Sul'],['RO','Rondônia'],['RR','Roraima'],['SC','Santa Catarina'],['SP','São Paulo'],['SE','Sergipe'],['TO','Tocantins']];
+for(const [uf,name] of states){const o=document.createElement('option');o.value=uf;o.textContent=uf+' — '+name;$('uf').append(o)}$('uf').value='PB';
+let municipalities=[],cityAbort=null,citySelected='Conceição';
+const norm=x=>x.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+function closeCities(){$('citySuggestions').classList.add('hidden');$('city').setAttribute('aria-expanded','false')}
+function showCities(){const term=norm($('city').value.trim());const results=term.length>=2?municipalities.filter(x=>norm(x).includes(term)).slice(0,12):[];const el=$('citySuggestions');el.replaceChildren();if(!results.length){closeCities();return}for(const name of results){const b=document.createElement('button');b.type='button';b.textContent='📍 '+name;b.addEventListener('click',()=>{$('city').value=name;citySelected=name;resetDestination();closeCities();$('cityStatus').textContent='✓ '+name+' — '+$('uf').value});el.append(b)}el.classList.remove('hidden');$('city').setAttribute('aria-expanded','true')}
+async function loadCities(){const uf=$('uf').value;municipalities=[];citySelected='';closeCities();resetDestination();if(!uf)return;$('cityStatus').textContent='Carregando cidades do IBGE...';if(cityAbort)cityAbort.abort();cityAbort=new AbortController();try{const res=await fetch('https://servicodados.ibge.gov.br/api/v1/localidades/estados/'+uf+'/municipios',{signal:cityAbort.signal});if(!res.ok)throw Error('Falha na consulta');const data=await res.json();if($('uf').value!==uf)return;municipalities=data.map(x=>x.nome).sort((a,b)=>a.localeCompare(b,'pt-BR'));$('cityStatus').textContent='Digite pelo menos 2 letras e selecione uma cidade.';if(municipalities.some(x=>norm(x)===norm($('city').value.trim()))){citySelected=municipalities.find(x=>norm(x)===norm($('city').value.trim()));$('cityStatus').textContent='✓ '+citySelected+' — '+uf}else showCities()}catch(e){if(e.name!=='AbortError')$('cityStatus').textContent='IBGE indisponível. Verifique a internet e tente mudar a UF.'}}
+$('uf').addEventListener('change',()=>{$('city').value='';loadCities()});$('city').addEventListener('input',()=>{citySelected='';showCities()});$('city').addEventListener('keydown',e=>{if(e.key==='Escape')closeCities()});document.addEventListener('click',e=>{if(!e.target.closest('.city-wrap'))closeCities()});loadCities();
+// Alternância de interface: não altera perfil, login ou disponibilidade real.
+
+function setRole(role){state.role=role;document.querySelectorAll('[data-role]').forEach(b=>b.classList.toggle('active',b.dataset.role===role));$('driverView').classList.toggle('hidden',role!=='motorista');$('homeView').classList.toggle('hidden',role==='motorista');$('tripsView').classList.add('hidden');$('accountView').classList.add('hidden');$('bottomNav').classList.remove('hidden');document.querySelector('.top h1').textContent=role==='motorista'?'Pronto para dirigir?':'Para onde vamos hoje?'}
+document.querySelectorAll('[data-role]').forEach(b=>b.addEventListener('click',()=>setRole(b.dataset.role)));
+$('driverGpsBtn').addEventListener('click',()=>{if(!navigator.geolocation){$('driverGpsStatus').textContent='GPS não disponível';return}$('driverGpsStatus').textContent='Obtendo localização...';navigator.geolocation.getCurrentPosition(p=>{$('driverGpsStatus').textContent='GPS: '+p.coords.latitude.toFixed(5)+', '+p.coords.longitude.toFixed(5);try{localStorage.setItem('mc_demo_driver_position',JSON.stringify({lat:p.coords.latitude,lng:p.coords.longitude,at:Date.now()}))}catch{}},()=>{$('driverGpsStatus').textContent='Sem acesso ao GPS. Verifique a permissão e o HTTPS.'},{enableHighAccuracy:true,timeout:12000})});
+$('searchStreetBtn').addEventListener('click',async()=>{
+ const street=$('destination').value.trim(), city=citySelected+' - '+$('uf').value;
+ if(street.length<3||!citySelected||!$('uf').value){$('searchStatus').textContent='Informe o nome da rua ou local e a cidade.';return;}
+ const elapsed=Date.now()-lastSearchAt;
+ if(elapsed<1200){$('searchStatus').textContent='Aguarde um instante antes de pesquisar novamente.';return;}
+ lastSearchAt=Date.now();resetDestination();$('searchResults').replaceChildren();
+ $('searchStreetBtn').disabled=true;$('searchStatus').textContent='Procurando endereços...';
+ try{
+  const params=new URLSearchParams({q:`${street}, ${city}, Brasil`,format:'jsonv2',addressdetails:'1',limit:'6',countrycodes:'br'});
+  const response=await fetch('https://nominatim.openstreetmap.org/search?'+params.toString(),{headers:{'Accept':'application/json'}});
+  if(!response.ok)throw new Error('Serviço de busca indisponível ('+response.status+')');
+  const results=await response.json();
+  if($('destination').value.trim()!==street||citySelected+' - '+$('uf').value!==city){$('searchStatus').textContent='Endereço alterado. Faça uma nova busca.';return;}
+  if(!results.length){$('searchStatus').textContent='Nenhum resultado. Tente outro nome, bairro ou ponto de referência.';return;}
+  $('searchStatus').textContent='Selecione o endereço correto entre os resultados:';
+  for(const place of results){
+   const lat=Number(place.lat),lng=Number(place.lon);
+   if(!Number.isFinite(lat)||!Number.isFinite(lng))continue;
+   const button=document.createElement('button');button.type='button';button.className='result-item';
+   button.textContent='📍 '+place.display_name;
+   button.addEventListener('click',()=>{state.destination={lat,lng,name:place.display_name};$('destination').value=place.display_name;$('chosenDestination').textContent='✓ Destino confirmado: '+place.display_name;$('chosenDestination').classList.remove('hidden');$('searchResults').replaceChildren();$('searchStatus').textContent='Destino selecionado. Você pode continuar.';});
+   $('searchResults').append(button);
+  }
+ }catch(err){$('searchStatus').textContent='Não foi possível buscar agora. Confira a internet ou tente novamente. '+err.message;}
+ finally{$('searchStreetBtn').disabled=false;}
+});
+$('requestBtn').addEventListener('click',()=>{const dest=$('destination').value.trim();const city=citySelected;if(!dest){$('requestStatus').textContent='Informe um destino ou ponto de referência.';$('destination').focus();return}if(!city||!$('uf').value){$('requestStatus').textContent='Selecione uma cidade nas sugestões.';$('city').focus();return}if(!state.destination){$('requestStatus').textContent='Busque a rua ou local e selecione um resultado para confirmar o destino.';return}if(!state.coords){$('requestStatus').textContent='Para solicitar uma corrida, confirme primeiro sua localização pelo GPS.';return}$('requestStatus').textContent=state.mode==='auto'?'Dados de solicitação preparados. Envio real desabilitado até a implantação do despacho seguro no Firebase.':'Destino preparado. A listagem real de motoristas será habilitada com autenticação e consultas protegidas.'});function show(view){$('driverView').classList.toggle('hidden',view!=='home'||state.role!=='motorista');['home','trips','account'].forEach(v=>$(v+'View').classList.toggle('hidden',v!==view||(v==='home'&&state.role==='motorista')));document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===view));window.scrollTo({top:0,behavior:'smooth'})}document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>show(b.dataset.view)));$('backTrips').onclick=()=>show('home');$('backAccount').onclick=()=>show('home');window.mcRideContext=()=>({pickup:state.coords,destination:state.destination,service:state.service,mode:state.mode,city:citySelected});render()})();
+</script>
+
+<script>
+(()=>{'use strict';
+ const el=id=>document.getElementById(id);
+ const brl=n=>n.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+ const valid=id=>{const raw=el(id).value.trim();const n=Number(raw);return raw!==''&&Number.isFinite(n)&&n>=0?n:null};
+
+ function calculate(){const to=valid('fareToPickup'),occupied=valid('fareWithPassenger'),back=valid('fareReturn'),emptyRate=valid('driverEmptyRate'),occupiedRate=valid('driverRate');
+ if([to,occupied,back,emptyRate,occupiedRate].some(v=>v===null)){el('passengerFareResult').textContent='Informe apenas valores válidos, maiores ou iguais a zero.';el('driverFareExample').textContent='Corrija os valores para calcular.';return}
+ const emptyKm=to+back,emptyCost=emptyKm*emptyRate,occupiedCost=occupied*occupiedRate,total=emptyCost+occupiedCost;
+ const breakdown='<div class="fare-breakdown"><span>Ida vazia ('+to.toFixed(1)+' km)</span><b>'+brl(to*emptyRate)+'</b></div><div class="fare-breakdown"><span>Com passageiro ('+occupied.toFixed(1)+' km)</span><b>'+brl(occupiedCost)+'</b></div><div class="fare-breakdown"><span>Retorno vazio ('+back.toFixed(1)+' km)</span><b>'+brl(back*emptyRate)+'</b></div>';
+ el('passengerFareResult').innerHTML='<div class="small">VALOR ESTIMADO / SIMULADO</div><strong>'+brl(total)+'</strong>'+breakdown;
+ el('driverFareExample').innerHTML='<div class="small">EXEMPLO COM AS DISTÂNCIAS DA TELA DO PASSAGEIRO</div><strong>'+brl(total)+'</strong><div class="fare-help">'+emptyKm.toFixed(1)+' km vazios × '+brl(emptyRate)+' + '+occupied.toFixed(1)+' km ocupados × '+brl(occupiedRate)+'</div>';
+ }
+ ['fareToPickup','fareWithPassenger','fareReturn','driverEmptyRate','driverRate'].forEach(id=>el(id).addEventListener('input',()=>{calculate()}));
+ el('setBaseGps').addEventListener('click',()=>{if(!navigator.geolocation){el('baseStatus').textContent='GPS indisponível.';return}el('baseStatus').textContent='Aguardando permissão do GPS...';navigator.geolocation.getCurrentPosition(p=>{const base={lat:p.coords.latitude,lng:p.coords.longitude};window.dispatchEvent(new CustomEvent('mc-base-selected',{detail:base}));el('baseStatus').textContent='Base cadastrada: '+base.lat.toFixed(5)+', '+base.lng.toFixed(5)},()=>{el('baseStatus').textContent='Não foi possível acessar o GPS. Abra via HTTPS e autorize a localização.'},{enableHighAccuracy:true,timeout:15000})});
+
+ // Roteamento de demonstração: endpoint público OSRM, sem garantia de disponibilidade.
+ const routeStatus=el('routeStatus');
+ const readJSON=key=>{try{return JSON.parse(localStorage.getItem(key)||'null')}catch{return null}};
+ const point=p=>p&&Number.isFinite(p.lat)&&Number.isFinite(p.lng)&&Math.abs(p.lat)<=90&&Math.abs(p.lng)<=180;
+ const routeKm=async(a,b)=>{
+   if(Math.abs(a.lat-b.lat)<0.00001&&Math.abs(a.lng-b.lng)<0.00001)return 0;
+   const coords=[a,b].map(p=>p.lng+','+p.lat).join(';');
+   const url='https://router.project-osrm.org/route/v1/driving/'+coords+'?overview=false&steps=false';
+   const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),13000);
+   try{const response=await fetch(url,{signal:controller.signal});if(!response.ok)throw Error('Servidor de rotas indisponível');
+   const data=await response.json();const distance=data.routes?.[0]?.distance;
+   if(data.code!=='Ok'||!Number.isFinite(distance))throw Error('Não existe rota rodoviária encontrada para um dos trechos');
+   return distance/1000;
+   }finally{clearTimeout(timer)}
+ };
+ el('calculateRoutesBtn').addEventListener('click',async()=>{
+   const driver=readJSON('mc_demo_driver_position'),base=readJSON('mc_demo_base');
+   const pickup=window.mcPassengerPosition?.(),destination=window.mcSelectedDestination?.();
+   if(!point(driver)||!point(base)||!point(pickup)||!point(destination)){
+     routeStatus.textContent='Faltam coordenadas: use o GPS do passageiro, escolha um destino na busca, verifique o GPS do motorista e cadastre a base.';return;
+   }
+   if(Date.now()-(driver.at||0)>15*60*1000){routeStatus.textContent='O GPS do motorista está desatualizado (mais de 15 minutos). Atualize na aba Motorista.';return;}
+   const btn=el('calculateRoutesBtn');btn.disabled=true;routeStatus.textContent='Consultando rotas rodoviárias (1 de 3)...';
+   try{
+     const a=await routeKm(driver,pickup);routeStatus.textContent='Consultando rotas rodoviárias (2 de 3)...';
+     const b=await routeKm(pickup,destination);routeStatus.textContent='Consultando rotas rodoviárias (3 de 3)...';
+     const c=await routeKm(destination,base);
+     el('fareToPickup').value=a.toFixed(2);el('fareWithPassenger').value=b.toFixed(2);el('fareReturn').value=c.toFixed(2);
+     calculate();routeStatus.textContent='✓ Distâncias calculadas pelas ruas: '+a.toFixed(2)+' km até embarque, '+b.toFixed(2)+' km com passageiro, '+c.toFixed(2)+' km de retorno. Estimativa sujeita à rota real.';
+   }catch(err){routeStatus.textContent='Não foi possível calcular as rotas: '+err.message+'. As distâncias manuais continuam disponíveis.';}
+   finally{btn.disabled=false;}
+ });
+ window.mcRecalculateFare=calculate;calculate();
+})();
+</script>
+<script type="module">
+window.mcFirebaseReady=(async()=>{'use strict';
+ const el=id=>document.getElementById(id);const feedback=el('authFeedback');
+ const setFeedback=(msg,error=false)=>{feedback.textContent=msg;feedback.className='status '+(error?'auth-error':'auth-success')};
+ const config={apiKey:'AIzaSyD3ZzKPdwfoLaWgTpIfNUdDzEYvMuQMYU4',authDomain:'mobilidademalaecuia.firebaseapp.com',projectId:'mobilidademalaecuia',storageBucket:'mobilidademalaecuia.firebasestorage.app',messagingSenderId:'372331935430',appId:'1:372331935430:web:0cb9fd9c09de5e9f0509c7'};
+ try{
+  const {initializeApp}=await import('https://www.gstatic.com/firebasejs/13.2.0/firebase-app.js');
+  const {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,sendPasswordResetEmail,signOut}=await import('https://www.gstatic.com/firebasejs/13.2.0/firebase-auth.js');
+  const app=initializeApp(config);
+  const auth=getAuth(app);
+  const firestoreSDK=await import('https://www.gstatic.com/firebasejs/13.2.0/firebase-firestore.js');
+  const {getFirestore,doc,getDoc,getDocFromServer,setDoc,onSnapshot,serverTimestamp}=firestoreSDK;
+  const db=getFirestore(app);
+  const {createFirestoreClient,browserRouteKm}=await import('./firestore-client.js');
+  window.mcFirestoreClient=createFirestoreClient({sdk:firestoreSDK,db,auth,routeKm:browserRouteKm});
+  const {createDriverSettings}=await import('./driver-settings.js');
+  const settings=window.mcDriverSettings=createDriverSettings({
+   readServer:async uid=>{const snap=await getDocFromServer(doc(db,'config_motoristas',uid));return snap.exists()?snap.data():null;},
+   writeServer:data=>{if(settings.getState().uid!==auth.currentUser?.uid)throw Error('Conta alterada; recarregue a configuração.');return window.mcFirestoreClient.configureDriver(data);},
+   render:state=>{const enabled=state.loaded&&!state.busy;
+    for(const id of ['driverEmptyRate','driverRate','profileEmptyRate','profileOccupiedRate','setBaseGps','syncDriverBackend'])el(id).disabled=!enabled;
+    el('driverEmptyRate').value=el('profileEmptyRate').value=state.draft?.emptyRate??'';
+    el('driverRate').value=el('profileOccupiedRate').value=state.draft?.occupiedRate??'';
+    const base=state.draft?.base;el('baseStatus').textContent=base?'Base da conta: '+base.lat.toFixed(5)+', '+base.lng.toFixed(5):'Base da conta ainda não cadastrada.';
+    // This cache supports the local fare demo only; never used when saving account settings.
+    try{if(base)localStorage.setItem('mc_demo_base',JSON.stringify(base));else localStorage.removeItem('mc_demo_base');}catch{}
+    el('driverBackendStatus').textContent=state.error||(!state.loaded?'Carregando configuração do servidor; alterações bloqueadas.':state.busy?'Salvando configuração...':state.dirty?'Alterações não salvas na conta.':'Configuração recebida do servidor.');window.mcRecalculateFare?.();
+   }
+  });
+  for(const [id,field] of [['driverEmptyRate','emptyRate'],['profileEmptyRate','emptyRate'],['driverRate','occupiedRate'],['profileOccupiedRate','occupiedRate']])el(id).addEventListener('input',()=>settings.edit({[field]:el(id).value}));
+  window.addEventListener('mc-base-selected',event=>{try{settings.edit({base:event.detail})}catch(e){el('driverBackendStatus').textContent=e.message}});
+  el('reloadDriverSettings').onclick=()=>settings.load(auth.currentUser?.uid||null);
+  let currentUser=null;
+  let driverAvailable=false;
+  const driverBadge=el('driverOnlineBadge'),driverBtn=el('driverOnlineBtn');
+  const driverNotice=document.createElement('p');driverNotice.className='status';driverNotice.setAttribute('aria-live','polite');driverBtn.after(driverNotice);
+  const showAvailability=()=>{driverBadge.className=driverAvailable?'driver-online':'driver-offline';driverBadge.textContent=driverAvailable?'🟢 Disponível (teste)':'⚪ Indisponível (teste)';driverBtn.textContent=driverAvailable?'⚪ Marcar indisponível':'🟢 Marcar disponível (teste)'};
+  let availabilityUnsub=null;
+  const loadAvailability=user=>{
+    availabilityUnsub?.();driverAvailable=false;showAvailability();driverNotice.textContent='Consultando disponibilidade privada...';
+    availabilityUnsub=onSnapshot(doc(db,'disponibilidades',user.uid),snap=>{if(currentUser?.uid!==user.uid)return;
+      driverAvailable=snap.exists()&&snap.data().disponivel===true;showAvailability();driverNotice.textContent=driverAvailable?'Disponível para solicitação de teste.':'Indisponível ou reservado para corrida ativa.';
+    },err=>{if(currentUser?.uid===user.uid)driverNotice.textContent='Não foi possível consultar o status. '+(err.code||'')});
+  };
+  driverBtn.addEventListener('click',async()=>{
+    const user=currentUser;if(!user){driverNotice.textContent='Entre na aba Conta e faça login antes.';return}
+    driverBtn.disabled=true;driverNotice.textContent='Verificando seu perfil...';
+    try{const profile=await getDoc(doc(db,'perfis',user.uid));
+      if(!profile.exists()||profile.data().tipo!=='motorista'){driverNotice.textContent='Salve primeiro seu perfil como Motorista (teste), na aba Conta.';return}
+      const next=!driverAvailable;
+      await setDoc(doc(db,'disponibilidades',user.uid),{disponivel:next,atualizadoEm:serverTimestamp()});
+      driverAvailable=next;showAvailability();driverNotice.textContent=next?'Disponível no Firebase (somente teste privado; sem corridas).':'Indisponível no Firebase.';
+    }catch(err){driverNotice.textContent='Falha ao salvar disponibilidade. Confira as regras do Firestore. '+(err.code||'')}
+    finally{driverBtn.disabled=false}
+  });
+
+  const profileStatus=(msg,error=false)=>{el('profileFeedback').textContent=msg;el('profileFeedback').className='status '+(error?'auth-error':'auth-success')};
+  const updateProfileFields=()=>el('profileDriverFields').classList.toggle('hidden',el('profileRole').value!=='motorista');
+  el('profileRole').addEventListener('change',updateProfileFields);
+  const loadProfile=async user=>{
+    el('profileName').value='';el('profileRole').value='passageiro';updateProfileFields();
+    profileStatus('Consultando seu perfil no Firestore...');
+    try{const snap=await getDoc(doc(db,'perfis',user.uid));if(currentUser?.uid!==user.uid)return;
+      if(!snap.exists()){profileStatus('Ainda não há perfil salvo. Preencha os campos e toque em Salvar.');return}
+      const d=snap.data();el('profileName').value=d.nome||'';el('profileRole').value=d.tipo==='motorista'?'motorista':'passageiro';
+      el('profileVehicle').value=['carro','moto','frete'].includes(d.veiculo)?d.veiculo:'carro';
+
+      updateProfileFields();profileStatus('✓ Perfil recuperado do Firebase.');
+    }catch(e){if(currentUser?.uid===user.uid)profileStatus('Não foi possível ler o perfil. Confira as regras do Firestore. '+(e.code||''),true)}
+  };
+  el('profileForm').addEventListener('submit',async e=>{e.preventDefault();const user=currentUser;if(!user){profileStatus('Faça login antes de salvar.',true);return}
+    const nome=el('profileName').value.trim(),tipo=el('profileRole').value;
+    if(tipo==='motorista'&&!settings.getState().loaded){profileStatus('Aguarde carregar a configuração do servidor.',true);return}
+    if(nome.length<2||nome.length>70){profileStatus('Informe um nome de 2 a 70 caracteres.',true);return}
+    const data={nome,tipo,veiculo:tipo==='motorista'?el('profileVehicle').value:'',atualizadoEm:serverTimestamp()};
+    el('saveProfileBtn').disabled=true;profileStatus('Salvando perfil...');
+    try{await setDoc(doc(db,'perfis',user.uid),data);if(tipo==='motorista'&&settings.getState().dirty){try{await settings.save({vehicle:data.veiculo});}catch(e){profileStatus('Perfil salvo; configuração não salva: '+e.message,true);return}}profileStatus('✓ Perfil e configuração salva recuperáveis pela conta.');}
+    catch(err){profileStatus('Falha ao salvar. Verifique as regras publicadas. '+(err.code||''),true)}
+    finally{el('saveProfileBtn').disabled=false}
+  });
+  onAuthStateChanged(auth,user=>{currentUser=user;settings.load(user?.uid||null);el('firebaseState').textContent=user?'Conectado':'Sem login';el('authState').textContent=user?'Sessão ativa: '+(user.email||'Usuário autenticado'):'Entre ou crie uma conta para iniciar sua sessão.';el('authForm').classList.toggle('hidden',!!user);el('logoutBtn').classList.toggle('hidden',!user);el('profilePanel').classList.toggle('hidden',!user);if(user){loadProfile(user);loadAvailability(user)}else{availabilityUnsub?.();availabilityUnsub=null;driverAvailable=false;showAvailability();driverNotice.textContent='Faça login para testar a disponibilidade.';profileStatus('')}},()=>setFeedback('Não foi possível verificar a sessão.',true));
+  const message=e=>{const code=e?.code||'';return ({'auth/email-already-in-use':'Este e-mail já está cadastrado.','auth/invalid-email':'Informe um e-mail válido.','auth/weak-password':'Escolha uma senha mais forte.','auth/invalid-credential':'E-mail ou senha incorretos.','auth/operation-not-allowed':'Ative E-mail/Senha em Firebase > Authentication > Sign-in method.','auth/unauthorized-domain':'Autorize este domínio em Firebase Authentication > Settings > Authorized domains.','auth/network-request-failed':'Falha de rede. Verifique a conexão.'})[code]||'Não foi possível concluir. '+code};
+  const run=async(action)=>{const email=el('authEmail').value.trim(),password=el('authPassword').value;if(!email||!password){setFeedback('Informe e-mail e senha.',true);return}el('loginBtn').disabled=el('registerBtn').disabled=true;setFeedback('Processando...');try{await action(auth,email,password);el('authPassword').value='';setFeedback('Operação concluída.')}catch(e){setFeedback(message(e),true)}finally{el('loginBtn').disabled=el('registerBtn').disabled=false}};
+  el('authForm').addEventListener('submit',e=>{e.preventDefault();run(signInWithEmailAndPassword)});
+  el('registerBtn').addEventListener('click',()=>run(createUserWithEmailAndPassword));
+  el('resetPasswordBtn').addEventListener('click',async()=>{const email=el('authEmail').value.trim();if(!email){setFeedback('Informe seu e-mail para receber a recuperação.',true);return}try{await sendPasswordResetEmail(auth,email);setFeedback('Se a conta estiver cadastrada, você receberá orientações por e-mail.')}catch(e){setFeedback(message(e),true)}});
+  el('logoutBtn').addEventListener('click',async()=>{try{await signOut(auth);setFeedback('Sessão encerrada.')}catch(e){setFeedback(message(e),true)}});
+  return app;
+ }catch(e){el('firebaseState').textContent='Indisponível';setFeedback('Firebase não carregou. Use HTTPS ou servidor local e verifique a internet.',true);console.warn('Firebase indisponível',e);return null}
+})();
+</script>
+<script>
+/* Fluxo de navegação isolado: não cria, altera ou aceita corridas reais. */
+(()=>{'use strict';
+const $=id=>document.getElementById(id);
+const KEY='mc_navigation_demo_v1';
+let demo=null;
+try{demo=JSON.parse(sessionStorage.getItem(KEY)||'null')}catch{}
+const valid=p=>p&&Number.isFinite(Number(p.lat))&&Number.isFinite(Number(p.lng))&&Math.abs(Number(p.lat))<=90&&Math.abs(Number(p.lng))<=180;
+const coord=p=>`${Number(p.lat).toFixed(6)},${Number(p.lng).toFixed(6)}`;
+function maps(target){if(!valid(target))return;const url='https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(coord(target))+'&travelmode=driving&dir_action=navigate';window.open(url,'_blank','noopener,noreferrer')}
+function store(){try{demo?sessionStorage.setItem(KEY,JSON.stringify(demo)):sessionStorage.removeItem(KEY)}catch{}}
+function draw(){const stage=demo?.stage||'idle';$('demoStage').textContent='Etapa: '+({idle:'aguardando teste',pickup:'a caminho do passageiro',destination:'passageiro embarcado',done:'finalizada'}[stage]||stage);$('demoStart').classList.toggle('hidden',stage==='pickup'||stage==='destination');$('demoBoard').classList.toggle('hidden',stage!=='pickup');$('demoFinish').classList.toggle('hidden',stage!=='destination');$('demoReopen').classList.toggle('hidden',stage!=='pickup'&&stage!=='destination')}
+$('demoStart').addEventListener('click',()=>{const pickup=window.mcPassengerPosition?.();const dest=window.mcSelectedDestination?.();if(!valid(pickup)||!valid(dest)){$('demoMessage').textContent='Na aba Passageiro, toque em Usar GPS e selecione um destino pela busca de ruas antes de iniciar a demonstração.';return}demo={stage:'pickup',pickup:{lat:Number(pickup.lat),lng:Number(pickup.lng)},destination:{lat:Number(dest.lat),lng:Number(dest.lng)}};store();draw();$('demoMessage').textContent='Rota ao embarque aberta. Ao voltar ao Mala e Cuia, confirme o embarque.';maps(demo.pickup)});
+$('demoBoard').addEventListener('click',()=>{if(demo?.stage!=='pickup')return;demo.stage='destination';store();draw();$('demoMessage').textContent='Embarque confirmado nesta demonstração. Abrindo rota ao destino.';maps(demo.destination)});
+$('demoReopen').addEventListener('click',()=>{if(!demo)return;maps(demo.stage==='pickup'?demo.pickup:demo.destination)});
+$('demoFinish').addEventListener('click',()=>{if(demo?.stage!=='destination')return;demo=null;store();draw();$('demoMessage').textContent='Demonstração finalizada. Nenhum dado de corrida foi enviado ao Firebase.'});
+draw();
+})();
+</script>
+<script type="module">
+(async()=>{
+'use strict';
+const $=id=>document.getElementById(id),say=t=>{$('rideFeedback').textContent=t};
+try{
+const {getApp}=await import('https://www.gstatic.com/firebasejs/13.2.0/firebase-app.js');
+const {getAuth,onAuthStateChanged}=await import('https://www.gstatic.com/firebasejs/13.2.0/firebase-auth.js');
+const {getFirestore,collection,doc,getDoc,query,where,onSnapshot}=await import('https://www.gstatic.com/firebasejs/13.2.0/firebase-firestore.js');
+// Compartilha a inicialização, sem limite artificial de seis segundos.
+const app=await window.mcFirebaseReady;
+if(!app)throw Error('Firebase não inicializado');
+const call=(name,data)=>window.mcFirestoreClient[name](data);
+const auth=getAuth(app),db=getFirestore(app);let user=null,profile=null,unsubs=[],profileUnsub=null,session=0;const pending=new Set();
+const safeCoords=c=>c&&Number.isFinite(+c.lat)&&Number.isFinite(+(c.lng))&&Math.abs(+c.lat)<=90&&Math.abs(+c.lng)<=180?{lat:+c.lat,lng:+c.lng}:null;
+const statusNames={solicitada:'Solicitada',aceita:'Aceita',embarcado:'Passageiro embarcado',concluida:'Concluída',recusada:'Recusada'};
+function clear(){unsubs.forEach(f=>f());unsubs=[];$('rideIncoming').replaceChildren();$('rideOutgoing').replaceChildren();$('tripHistory').replaceChildren()}
+function mapUrl(coords){return 'https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(coords.lat+','+coords.lng)+'&travelmode=driving'}
+function button(parent,label,fn){const b=document.createElement('button');b.type='button';b.className='secondary';b.style.margin='6px 5px 4px 0';b.textContent=label;b.onclick=fn;b.disabled=pending.has(parent.dataset.rideId);parent.append(b);return b}
+async function step(ride,next){
+if(pending.has(ride.id))return;pending.add(ride.id);document.querySelectorAll('[data-ride-id="'+CSS.escape(ride.id)+'"] button').forEach(b=>b.disabled=true);
+try{await call('rideStep',{rideId:ride.id,next});say('Etapa atualizada: '+statusNames[next]);
+const target=next==='aceita'?safeCoords(ride.pickup):next==='embarcado'?safeCoords(ride.destination):null;if(target)window.location.assign(mapUrl(target));
+}catch(e){say('Não foi possível atualizar: '+(e.message||e.code))}finally{pending.delete(ride.id);document.querySelectorAll('[data-ride-id="'+CSS.escape(ride.id)+'"] button').forEach(b=>b.disabled=false)}}
+function draw(container,items,driver){container.replaceChildren();const title=document.createElement('h3');title.className='section-title';title.textContent=driver?'📥 Solicitações para este motorista':'🧾 Minhas solicitações';container.append(title);if(!items.length){const p=document.createElement('p');p.className='fare-help';p.textContent='Nenhuma solicitação encontrada.';container.append(p);return}
+for(const ride of items){const c=document.createElement('div');c.className='card';c.dataset.rideId=ride.id;c.style.background='#fafafa';const h=document.createElement('strong');h.textContent='Corrida '+ride.id.slice(0,8)+' — '+(statusNames[ride.status]||ride.status);c.append(h);const d=document.createElement('p');d.className='fare-help';d.textContent='Embarque: '+ride.pickupLabel+' | Destino: '+ride.destinationLabel+' | Serviço: '+ride.service;c.append(d);if(Number.isInteger(ride.estimate?.totalCents)){const price=document.createElement('p');price.className='fare-help';price.textContent='Estimativa (distâncias do cliente): '+(ride.estimate.totalCents/100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});c.append(price);}
+if(ride.schemaVersion!==2){const legacy=document.createElement('p');legacy.className='fare-help';legacy.textContent='Registro antigo: somente consulta. Valores e etapas não foram migrados.';c.append(legacy);}
+if(driver&&ride.schemaVersion===2){if(ride.status==='solicitada'){button(c,'✅ Aceitar e abrir Maps até o passageiro',()=>step(ride,'aceita'));button(c,'Recusar solicitação',()=>step(ride,'recusada'));}if(ride.status==='aceita'){button(c,'🗺️ Abrir rota até passageiro',()=>window.location.assign(mapUrl(ride.pickup)));button(c,'👤 Confirmar embarque',()=>step(ride,'embarcado'))}if(ride.status==='embarcado'){button(c,'🗺️ Abrir rota ao destino',()=>window.location.assign(mapUrl(ride.destination)));button(c,'🏁 Finalizar corrida',()=>step(ride,'concluida'))}}
+else{const note=document.createElement('p');note.className='fare-help';note.textContent=ride.status==='solicitada'?'Aguardando aceite do motorista.':ride.status==='aceita'?'Motorista aceitou e está a caminho.':ride.status==='embarcado'?'Em viagem.':ride.status==='recusada'?'Solicitação recusada.':'Viagem encerrada.';c.append(note)}container.append(c)}}
+function start(userNow){
+const token=++session;clear();profileUnsub?.();profileUnsub=null;user=userNow;profile=null;
+$('rideLogged').classList.toggle('hidden',!user);$('rideAuth').classList.toggle('hidden',!!user);
+$('ridePassengerPanel').classList.add('hidden');$('rideDriverPanel').classList.add('hidden');$('rideMyUid').value=user?.uid||'';
+if(!user){say('');return}const uid=user.uid;
+profileUnsub=onSnapshot(doc(db,'perfis',uid),p=>{
+if(token!==session)return;clear();profile=p.exists()?p.data():null;
+const role=profile?.tipo;
+$('ridePassengerPanel').classList.toggle('hidden',role!=='passageiro');$('rideDriverPanel').classList.toggle('hidden',role!=='motorista');
+if(!['passageiro','motorista'].includes(role)){say('Salve seu perfil na aba Conta antes de usar corridas.');return}
+const driver=role==='motorista',target=driver?'rideIncoming':'rideOutgoing';
+const q=query(collection(db,'corridas_teste'),where(driver?'driverId':'passengerId','==',uid));
+unsubs.push(onSnapshot(q,s=>{if(token!==session)return;const rows=s.docs.map(d=>({...d.data(),id:d.id}));draw($(target),rows,driver);draw($('tripHistory'),rows.filter(r=>['concluida','recusada'].includes(r.status)),false)},e=>say('Falha ao acompanhar corridas: '+(e.code||e.message))));say('Conectado ao Firestore para corridas de teste.');
+},e=>{clear();profile=null;$('ridePassengerPanel').classList.add('hidden');$('rideDriverPanel').classList.add('hidden');say('Erro ao acompanhar perfil: '+(e.code||e.message))});
+}
+onAuthStateChanged(auth,start);
+$('syncDriverBackend').onclick=async()=>{const status=$('driverBackendStatus');if(profile?.tipo!=='motorista'){status.textContent='Salve perfil Motorista na Conta.';return}let position;try{position=JSON.parse(localStorage.getItem('mc_demo_driver_position'));}catch{}if(!safeCoords(position)||Date.now()-(position.at||0)>900000){status.textContent='Atualize o GPS do motorista neste aparelho antes de sincronizar.';return}try{await window.mcDriverSettings.save({position:safeCoords(position),vehicle:profile.veiculo});status.textContent='Configuração da conta e GPS sincronizados.';}catch(e){status.textContent='Não foi possível salvar: '+e.message;}};
+$('rideCopyUid').onclick=async()=>{try{await navigator.clipboard.writeText($('rideMyUid').value);say('Código copiado.')}catch{say('Selecione o código e copie manualmente.')}};
+$('rideSend').onclick=async()=>{if(!user||profile?.tipo!=='passageiro'){say('Entre com uma conta Passageiro.');return}const driverId=$('rideTargetUid').value.trim(),ctx=window.mcRideContext?.(),pickup=safeCoords(ctx?.pickup),destination=safeCoords(ctx?.destination);if(!/^[A-Za-z0-9_-]{1,128}$/.test(driverId)||driverId===user.uid){say('Informe o UID válido de outra conta de motorista.');return}if(!pickup||!destination){say('Na aba Passageiro, confirme GPS e selecione o destino na busca.');return}const pickupLabel=$('ridePickupText').value.trim(),destinationLabel=$('rideDestinationText').value.trim();if(pickupLabel.length<3||destinationLabel.length<3||pickupLabel.length>120||destinationLabel.length>120){say('Preencha as referências de embarque e destino (3 a 120 caracteres).');return}
+const btn=$('rideSend');btn.disabled=true;say('Enviando solicitação ao motorista...');try{await call('requestRide',{driverId,service:ctx.service,pickup,destination,pickupLabel,destinationLabel});say('Solicitação enviada! Veja o painel do motorista no outro celular.');}catch(e){say('Falha ao solicitar: '+(e.code||e.message))}finally{btn.disabled=false}};
+}catch(e){say('Módulo de corridas indisponível: '+e.message)}
+})();
+</script>
+</body></html>

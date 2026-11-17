@@ -74,7 +74,8 @@ service cloud.firestore {
   match /corridas_teste/{id} {
    allow read: if signed() && (resource.data.passengerId == request.auth.uid || resource.data.driverId == request.auth.uid);
    allow create: if signed() && request.resource.data.passengerId == request.auth.uid && role(request.auth.uid,'passageiro')
-    && request.resource.data.keys().hasOnly(['passengerId','driverId','status','service','pickup','destination','pickupLabel','destinationLabel','estimate','createdAt','updatedAt'])
+    && request.resource.data.keys().hasOnly(['schemaVersion','passengerId','driverId','status','service','pickup','destination','pickupLabel','destinationLabel','estimate','createdAt','updatedAt'])
+    && request.resource.data.schemaVersion == 2
     && request.resource.data.driverId is string && request.resource.data.driverId != request.auth.uid && role(request.resource.data.driverId,'motorista')
     && request.resource.data.status == 'solicitada' && request.resource.data.estimate == null
     && request.resource.data['service'] in ['carro','moto','frete']
@@ -86,6 +87,7 @@ service cloud.firestore {
     && request.resource.data.destinationLabel is string && request.resource.data.destinationLabel.size() >= 3 && request.resource.data.destinationLabel.size() <= 120
     && request.resource.data.createdAt == request.time && request.resource.data.updatedAt == request.time;
    allow update: if own(resource.data.driverId) && role(resource.data.driverId,'motorista')
+    && resource.data.get('schemaVersion',0) == 2
     && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','updatedAt','estimate'])
     && request.resource.data.updatedAt == request.time
     && ((resource.data.status == 'solicitada' && request.resource.data.status == 'aceita'

@@ -34,18 +34,11 @@ Comparar `firestore.rules` desta revisão com as regras existentes e testar em p
 
 A nova regra padrão nega outras coleções; avaliar dependências existentes antes de qualquer substituição. Revisar as três operações de aceite/conclusão e os testes adversariais. Conferir cotas do Spark, provedor Auth E-mail/Senha e domínios autorizados. Não é necessário migrar para Blaze para o fluxo proposto dentro das cotas gratuitas.
 
-## Publicação futura — NÃO EXECUTADA E DEPENDE DE CONFIRMAÇÃO
+## Preparação atual: GitHub Pages, sem publicar
 
-Não há `.firebaserc` vinculando automaticamente o repositório a um projeto. Depois de autorização explícita e revisão das regras, os comandos seriam:
+Consultar `PUBLICACAO-PAGES-REVISAO.md`. A fonte proposta é `teste-sem-blaze /docs`, sem merge na main. Gerar com `npm run prepare:pages` e testar com `npm run test:pages`. As regras completas estão em `firestore.rules` e `REGRAS-COMPLETAS-FIRESTORE.md` e exigem revisão separada; não são parte do site estático.
 
-```sh
-npm run build:web
-npx firebase login
-npx firebase deploy --project ID_CONFIRMADO --only firestore:rules
-npx firebase deploy --project ID_CONFIRMADO --only hosting
-```
-
-Nunca executar `--only functions`; não há Functions nesta variante. `web-dist` contém somente HTML e os dois módulos públicos. Planejar janela e rollback de cliente/regras compatíveis, sem restaurar regras inseguras ou as antigas que bloqueiam todas as gravações.
+Nenhuma configuração do Pages ou regra foi alterada. Não executar push, trocar a fonte do Pages ou aplicar regras sem confirmação. A troca futura da fonte afetaria o site público existente; não é um ambiente paralelo. Também é necessário resolver `COMPATIBILIDADE-LEGADOS.md` antes de reutilizar contas antigas.
 
 ## Limite do preço
 
