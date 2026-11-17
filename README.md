@@ -53,3 +53,7 @@ Ver `DIAGNOSTICO-ACEITE.md`: progresso e erros no cartão, troca de controles so
 ## Proteção contra envio duplicado
 
 Leia `ATUALIZACAO-PASSAGEIRO.md`. Bloqueio imediato no envio, texto sem clique após confirmação e reserva transacional persistente do passageiro. Regras completas novas são obrigatórias; a interface bloqueia novos pedidos sob as regras anteriores. Contas já existentes sem controle `passageiros_ativos` precisam de revisão manual antes de habilitar novos pedidos. Nenhum duplicado é apagado automaticamente.
+
+## Interface sem demonstrações isoladas
+
+Removidos os painéis “Simulação da tarifa por percurso” e “Navegação do motorista — demonstração”, seus campos, botões, estilos e scripts exclusivos. O exemplo de tarifa do painel do motorista também dependia das distâncias simuladas e foi removido. A seleção da base por GPS foi preservada no módulo da conta; tarifas/base continuam sincronizadas, e a estimativa integrada continua sendo calculada no aceite. Os controles de Maps e etapas da corrida permanecem no painel integrado. Essa limpeza não exige mudança nas regras nem modifica o Firebase.

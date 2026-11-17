@@ -82,3 +82,10 @@ O teste Pages também atrasa o commit e silencia a consulta do motorista: não m
 - **Navegador/Pages aprovado** com SDK e rede simulados: eventos repetidos no mesmo instante, commit atrasado mantendo Enviando, uma criação, espera sem botão, outro aparelho simulado, recarga, aceite/viagem, liberação por recusa/cancelamento/conclusão, falha de permissão, reconhecimento perdido após commit com releitura que mantém o bloqueio, cache vazio sem liberar envio e bloqueio sob regras antigas/conta sem revisão.
 - O teste no caminho `/Mala-e-Cuia/` usa exatamente `docs/`, gerado pelo build e registrado no manifesto.
 - Não houve teste físico, Auth de produção, leitura de dados reais, aplicação das regras ou inicialização de contas no Firebase real. Nenhum duplicado real foi excluído. Aplicar regras/inicializar perfis antigos e testar fisicamente continua pendente.
+
+## Limpeza das demonstrações isoladas — 17/11/2026
+
+- `npm run test:pages`: aprovado no pacote gerado em `docs/`, caminho `/Mala-e-Cuia/`, com SDK/serviços externos simulados. A inicialização, GPS, seleção de base, sincronização de tarifas entre sessões, estimativa integrada (R$ 37,00 no cenário), abertura automática/manual do Maps, aceite, embarque, cancelamento, conclusão, histórico e bloqueio de pedidos duplicados continuam passando.
+- `npm run test:unit`: 6/6 aprovados. `npm run test:emulator`: 44/44 aprovados, saída 0, exclusivamente no projeto local demo.
+- Checagem estática: todos os IDs literais referenciados pelos scripts existem; sintaxe de todos os scripts aprovada; campos, botões, armazenamento e funções exclusivos das duas demonstrações removidos. O botão de base por GPS foi transferido para o módulo da conta; o cache do GPS do motorista foi preservado porque é usado na sincronização integrada.
+- `firestore.rules`, sua cópia completa, `firestore-client.js` e `driver-settings.js` permanecem byte a byte iguais à revisão anterior. Manifesto regenerado para o HTML do Pages. Nenhuma alteração nas regras ou dados do Firebase real. Não houve teste físico com celulares nesta limpeza.

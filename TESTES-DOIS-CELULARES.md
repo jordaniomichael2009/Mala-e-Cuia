@@ -95,3 +95,7 @@ Pré-requisitos: ler `ATUALIZACAO-PASSAGEIRO.md`, revisar/aplicar as regras comp
 8. Registrar IDs completos, UIDs, horários, aparelhos/navegadores, mensagem e número de documentos novos em cada tentativa. Não registrar senhas. Comparar contagem antes/depois sem apagar o histórico.
 
 Tentativas maliciosas de trocar participantes, apagar reserva, liberar sem finalizar ou criar dois pedidos já são cobertas pelo Emulator. Não executar adulterações no Firebase real como parte do teste físico.
+
+## Conferência visual após remoção das demonstrações
+
+Recarregar completamente o Pages em ambos os aparelhos. As seções de simulação de tarifa e navegação demonstrativa não devem aparecer nas abas Passageiro, Motorista, Viagens ou Conta. Definir base usando GPS, editar/salvar tarifas e seguir o fluxo principal da corrida integrada, incluindo estimativa no aceite e abertura automática/manual do Maps. Não usar campos de distância manual ou botões de aceite/embarque demonstrativos: foram removidos. Esta limpeza não requer novas regras. Teste físico dessa revisão ainda não executado.

@@ -5,8 +5,8 @@
   "files": [
     {
       "path": "docs/index.html",
-      "bytes": 74280,
-      "sha256": "ac12148230c529bd70db7198bda44e115bc0a20812f9a362aa857b8b620fa1c5"
+      "bytes": 64137,
+      "sha256": "8b869b98671d6a6b5af86f5da8a8455189819122666f0c7fa4e09ec533e41437"
     },
     {
       "path": "docs/driver-settings.js",

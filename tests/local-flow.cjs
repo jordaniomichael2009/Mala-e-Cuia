@@ -44,7 +44,7 @@ for(const [page,role,name] of [[passenger,'passageiro','Pessoa passageira'],[dri
  await page.click('[data-view="account"]');await page.fill('#profileName',name);await page.selectOption('#profileRole',role);await page.click('#saveProfileBtn');await page.waitForFunction(()=>document.querySelector('#rideFeedback').textContent.includes('Conectado'));
 }
 await driver.click('[data-role="motorista"]');assert(await driver.locator('[data-view="account"]').isVisible());await driver.click('[data-view="account"]');assert(await driver.locator('#accountView').isVisible());assert(!(await driver.locator('#driverView').isVisible()));await driver.click('[data-view="home"]');assert(await driver.locator('#driverView').isVisible());
-await driver.fill('#driverEmptyRate','1.20');await driver.fill('#driverRate','2.50');await driver.click('#driverGpsBtn');await driver.waitForFunction(()=>localStorage.getItem('mc_demo_driver_position'));await driver.click('#setBaseGps');await driver.waitForFunction(()=>localStorage.getItem('mc_demo_base'));await driver.click('#syncDriverBackend');await driver.waitForFunction(()=>document.querySelector('#driverBackendStatus').textContent.includes('sincronizados'));
+await driver.fill('#driverEmptyRate','1.20');await driver.fill('#driverRate','2.50');await driver.click('#driverGpsBtn');await driver.waitForFunction(()=>localStorage.getItem('mc_demo_driver_position'));await driver.click('#setBaseGps');await driver.waitForFunction(()=>window.mcDriverSettings.getState().draft.base);await driver.click('#syncDriverBackend');await driver.waitForFunction(()=>document.querySelector('#driverBackendStatus').textContent.includes('sincronizados'));
 const driver2=await createPage('driver',{stale:true});
 assert.equal(await driver2.inputValue('#profileEmptyRate'),'1.2');assert.equal(await driver2.inputValue('#driverEmptyRate'),'1.2');assert.equal(await driver2.inputValue('#driverRate'),'2.5');
 assert.deepEqual(await driver2.evaluate(()=>window.mcDriverSettings.getState().draft.base),{lat:-7.55,lng:-38.5});
@@ -57,7 +57,7 @@ assert.equal(store.get('config_motoristas/driver').emptyRateCents,130);assert.eq
 // Restore rate explicitly using the latest server version.
 await driver.fill('#driverEmptyRate','1.20');await driver.click('#syncDriverBackend');await driver.waitForFunction(()=>document.querySelector('#driverBackendStatus').textContent.includes('sincronizados'));
 await driver.click('#driverOnlineBtn');await driver.waitForFunction(()=>document.querySelector('#driverOnlineBadge').textContent.includes('Disponível'));
-await passenger.click('[data-view="home"]');await passenger.click('#gpsBtn');await passenger.waitForFunction(()=>window.mcPassengerPosition());await passenger.fill('#destination','Hospital');await passenger.click('#searchStreetBtn');await passenger.click('.result-item');
+await passenger.click('[data-view="home"]');await passenger.click('#gpsBtn');await passenger.waitForFunction(()=>window.mcRideContext().pickup);await passenger.fill('#destination','Hospital');await passenger.click('#searchStreetBtn');await passenger.click('.result-item');
 await passenger.fill('#rideTargetUid','driver');await passenger.fill('#ridePickupText','Praça de teste');await passenger.fill('#rideDestinationText','Hospital de teste');
 // Rapid events in the same task and delayed server acknowledgement: one creation only.
 let releaseRequest,requestStarted;const sendingStarted=new Promise(resolve=>requestStarted=resolve);requestGate={wait:new Promise(resolve=>releaseRequest=resolve),started:requestStarted};
